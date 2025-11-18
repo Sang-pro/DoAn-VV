@@ -16,8 +16,8 @@ export const useWebSocket = () => {
     const token = localStorage.getItem('accessToken');
     if (!token || !user) return;
 
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+    const wsProtocol = globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${globalThis.location.host}/ws`;
 
     const ws = new WebSocket(wsUrl);
 
@@ -36,7 +36,9 @@ export const useWebSocket = () => {
       try {
         const message: WebSocketMessage = JSON.parse(event.data);
         const handlers = messageHandlersRef.current.get(message.topic) || [];
-        handlers.forEach((handler) => handler(message));
+        for (const handler of handlers) {
+          handler(message);
+        }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }

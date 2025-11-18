@@ -33,9 +33,10 @@ const Login: React.FC = () => {
         <h1>Đăng Nhập</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Tên đăng nhập</label>
+            <label htmlFor="login-username">Tên đăng nhập</label>
             <input
               type="text"
+              id="login-username"
               name="username"
               value={formData.username}
               onChange={handleChange}
@@ -45,9 +46,10 @@ const Login: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label>Mật khẩu</label>
+            <label htmlFor="login-password">Mật khẩu</label>
             <input
               type="password"
+              id="login-password"
               name="password"
               value={formData.password}
               onChange={handleChange}

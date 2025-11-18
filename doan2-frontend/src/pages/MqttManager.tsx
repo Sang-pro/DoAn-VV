@@ -26,7 +26,7 @@ export const MqttManager = () => {
     setError(null);
     try {
       const response = await MqttApi.getActive();
-      setDevices(response);
+      setDevices(response.data);
     } catch (err: any) {
       if (err.response?.status === 401) {
         navigate('/login');
@@ -73,7 +73,7 @@ export const MqttManager = () => {
   const handleEdit = (device: MqttCredentialsResponse) => {
     setFormData({
       mqttUsername: device.mqttUsername,
-      mqttPassword: device.mqttPassword || '',
+      mqttPassword: '',
       brokerUrl: device.brokerUrl,
     });
     setEditingId(device.id);
@@ -81,7 +81,7 @@ export const MqttManager = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa thiết bị này?')) {
+    if (globalThis.confirm('Bạn có chắc chắn muốn xóa thiết bị này?')) {
       try {
         await MqttApi.delete(id);
         loadDevices();
@@ -125,10 +125,10 @@ export const MqttManager = () => {
         <div className="mqtt-form-container">
           <form className="mqtt-form" onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="mqttUsername">MQTT Username</label>
+              <label htmlFor="mqtt-username">MQTT Username</label>
               <input
                 type="text"
-                id="mqttUsername"
+                id="mqtt-username"
                 name="mqttUsername"
                 value={formData.mqttUsername}
                 onChange={handleInputChange}
@@ -138,10 +138,10 @@ export const MqttManager = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="mqttPassword">MQTT Password</label>
+              <label htmlFor="mqtt-password">MQTT Password</label>
               <input
                 type="password"
-                id="mqttPassword"
+                id="mqtt-password"
                 name="mqttPassword"
                 value={formData.mqttPassword}
                 onChange={handleInputChange}
@@ -151,10 +151,10 @@ export const MqttManager = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="brokerUrl">Broker URL</label>
+              <label htmlFor="broker-url">Broker URL</label>
               <input
                 type="text"
-                id="brokerUrl"
+                id="broker-url"
                 name="brokerUrl"
                 value={formData.brokerUrl}
                 onChange={handleInputChange}
@@ -182,7 +182,7 @@ export const MqttManager = () => {
         </div>
       )}
 
-      {!loading && devices.length > 0 && (
+      {devices.length > 0 && (
         <div className="mqtt-devices-grid">
           {devices.map((device) => (
             <div key={device.id} className={`mqtt-device-card ${device.isActive ? 'active' : 'inactive'}`}>
@@ -201,12 +201,12 @@ export const MqttManager = () => {
 
                 <div className="detail-item">
                   <label>Ngày tạo:</label>
-                  <span>{new Date(device.createdAt).toLocaleString('vi-VN')}</span>
+                  <span>{new Date(device.createdAt || '').toLocaleString('vi-VN')}</span>
                 </div>
 
                 <div className="detail-item">
                   <label>Cập nhật lần cuối:</label>
-                  <span>{new Date(device.updatedAt).toLocaleString('vi-VN')}</span>
+                  <span>{new Date(device.updatedAt || '').toLocaleString('vi-VN')}</span>
                 </div>
               </div>
 

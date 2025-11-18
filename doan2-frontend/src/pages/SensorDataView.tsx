@@ -5,6 +5,7 @@ import { mqttAPI } from '../api/mqtt';
 import './SensorDataView.css';
 
 interface SensorReading {
+  id?: string;
   timestamp: string;
   temperature?: number;
   humidity?: number;
@@ -36,6 +37,7 @@ export const SensorDataView = () => {
     const unsubscribe = subscribe(topic, (message) => {
       try {
         const reading: SensorReading = {
+          id: `${Date.now()}-${selectedDevice}`,
           timestamp: new Date().toLocaleString('vi-VN'),
           ...message.message,
         };
@@ -145,36 +147,36 @@ export const SensorDataView = () => {
                   <div className="metric-card temperature">
                     <div className="metric-label">Nhiệt độ</div>
                     <div className="metric-value">
-                      {getLatestValue('temperature') !== null
-                        ? formatValue(getLatestValue('temperature'), 'temperature')
-                        : 'N/A'}
+                      {getLatestValue('temperature') === null
+                        ? 'N/A'
+                        : formatValue(getLatestValue('temperature'), 'temperature')}
                     </div>
                   </div>
 
                   <div className="metric-card humidity">
                     <div className="metric-label">Độ ẩm</div>
                     <div className="metric-value">
-                      {getLatestValue('humidity') !== null
-                        ? formatValue(getLatestValue('humidity'), 'humidity')
-                        : 'N/A'}
+                      {getLatestValue('humidity') === null
+                        ? 'N/A'
+                        : formatValue(getLatestValue('humidity'), 'humidity')}
                     </div>
                   </div>
 
                   <div className="metric-card pressure">
                     <div className="metric-label">Áp suất</div>
                     <div className="metric-value">
-                      {getLatestValue('pressure') !== null
-                        ? formatValue(getLatestValue('pressure'), 'pressure')
-                        : 'N/A'}
+                      {getLatestValue('pressure') === null
+                        ? 'N/A'
+                        : formatValue(getLatestValue('pressure'), 'pressure')}
                     </div>
                   </div>
 
                   <div className="metric-card light">
                     <div className="metric-label">Ánh sáng</div>
                     <div className="metric-value">
-                      {getLatestValue('light') !== null
-                        ? formatValue(getLatestValue('light'), 'light')
-                        : 'N/A'}
+                      {getLatestValue('light') === null
+                        ? 'N/A'
+                        : formatValue(getLatestValue('light'), 'light')}
                     </div>
                   </div>
                 </div>
@@ -191,28 +193,28 @@ export const SensorDataView = () => {
                       <div className="col-data">Dữ liệu khác</div>
                     </div>
                     <div className="table-body">
-                      {sensorReadings.map((reading, index) => (
-                        <div key={index} className="table-row">
+                      {sensorReadings.map((reading) => (
+                        <div key={reading.id} className="table-row">
                           <div className="col-timestamp">{reading.timestamp}</div>
                           <div className="col-temperature">
-                            {reading.temperature !== undefined
-                              ? formatValue(reading.temperature, 'temperature')
-                              : '-'}
+                            {reading.temperature === undefined
+                              ? '-'
+                              : formatValue(reading.temperature, 'temperature')}
                           </div>
                           <div className="col-humidity">
-                            {reading.humidity !== undefined
-                              ? formatValue(reading.humidity, 'humidity')
-                              : '-'}
+                            {reading.humidity === undefined
+                              ? '-'
+                              : formatValue(reading.humidity, 'humidity')}
                           </div>
                           <div className="col-pressure">
-                            {reading.pressure !== undefined
-                              ? formatValue(reading.pressure, 'pressure')
-                              : '-'}
+                            {reading.pressure === undefined
+                              ? '-'
+                              : formatValue(reading.pressure, 'pressure')}
                           </div>
                           <div className="col-light">
-                            {reading.light !== undefined
-                              ? formatValue(reading.light, 'light')
-                              : '-'}
+                            {reading.light === undefined
+                              ? '-'
+                              : formatValue(reading.light, 'light')}
                           </div>
                           <div className="col-data">
                             {reading.other && Object.keys(reading.other).length > 0

@@ -36,6 +36,31 @@ const Dashboard: React.FC = () => {
     await logout();
   };
 
+  const renderDevicesList = () => {
+    if (loading) {
+      return <p>Đang tải dữ liệu...</p>;
+    }
+    if (mqttDevices.length === 0) {
+      return <p>Không có thiết bị nào</p>;
+    }
+    return (
+      <div className="devices-list">
+        {mqttDevices.slice(0, 5).map((device) => (
+          <div key={device.id} className="device-item">
+            <div className="device-info">
+              <h3>{device.mqttUsername}</h3>
+              <p>Broker: {device.brokerUrl}</p>
+              <p>Tạo lúc: {new Date(device.createdAt).toLocaleString('vi-VN')}</p>
+            </div>
+            <div className="device-status">
+              {device.isActive && <span className="active-badge">Hoạt động</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
@@ -88,26 +113,7 @@ const Dashboard: React.FC = () => {
               Xem tất cả →
             </button>
           </div>
-          {loading ? (
-            <p>Đang tải dữ liệu...</p>
-          ) : mqttDevices.length > 0 ? (
-            <div className="devices-list">
-              {mqttDevices.slice(0, 5).map((device) => (
-                <div key={device.id} className="device-item">
-                  <div className="device-info">
-                    <h3>{device.mqttUsername}</h3>
-                    <p>Broker: {device.brokerUrl}</p>
-                    <p>Tạo lúc: {new Date(device.createdAt).toLocaleString('vi-VN')}</p>
-                  </div>
-                  <div className="device-status">
-                    {device.isActive && <span className="active-badge">Hoạt động</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>Không có thiết bị nào</p>
-          )}
+          {renderDevicesList()}
         </div>
       </main>
     </div>
