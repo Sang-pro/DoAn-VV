@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Ollama Chat", description = "Direct API for Ollama Chat completions")
+@Tag(name = "Đồ án 2", description = "Direct API for project")
 @RequiredArgsConstructor
 public class AuthController {
 

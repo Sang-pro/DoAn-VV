@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import './Login.css';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -28,12 +27,12 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h1>Đăng Nhập</h1>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 font-sans">
+      <div className="bg-white rounded-xl shadow-2xl p-10 w-full max-w-md">
+        <h1 className="text-center text-gray-800 mb-8 text-3xl font-bold">Đăng Nhập</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="login-username">Tên đăng nhập</label>
+            <label htmlFor="login-username" className="label">Tên đăng nhập</label>
             <input
               type="text"
               id="login-username"
@@ -41,12 +40,13 @@ const Login: React.FC = () => {
               value={formData.username}
               onChange={handleChange}
               placeholder="Nhập tên đăng nhập"
+              className="input-field"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="login-password">Mật khẩu</label>
+            <label htmlFor="login-password" className="label">Mật khẩu</label>
             <input
               type="password"
               id="login-password"
@@ -54,16 +54,26 @@ const Login: React.FC = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Nhập mật khẩu"
+              className="input-field"
               required
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-box">{error}</div>}
 
-          <button type="submit" disabled={isLoading} className="login-btn">
+          <button type="submit" disabled={isLoading} className="btn-primary w-full mt-2">
             {isLoading ? 'Đang xử lý...' : 'Đăng Nhập'}
           </button>
         </form>
+
+        <div className="text-center mt-6 text-gray-600 text-sm">
+          <p>
+            Chưa có tài khoản?{' '}
+            <Link to="/register" className="text-indigo-600 font-semibold hover:text-purple-600 transition-colors">
+              Đăng ký tại đây
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

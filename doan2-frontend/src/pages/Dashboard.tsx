@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { mqttAPI } from '../api/mqtt';
 import { MqttCredentialsResponse } from '../types';
-import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -38,23 +37,21 @@ const Dashboard: React.FC = () => {
 
   const renderDevicesList = () => {
     if (loading) {
-      return <p>Đang tải dữ liệu...</p>;
+      return <p className="text-gray-500">Đang tải dữ liệu...</p>;
     }
     if (mqttDevices.length === 0) {
-      return <p>Không có thiết bị nào</p>;
+      return <p className="text-gray-500">Không có thiết bị nào</p>;
     }
     return (
-      <div className="devices-list">
+      <div className="space-y-3">
         {mqttDevices.slice(0, 5).map((device) => (
-          <div key={device.id} className="device-item">
-            <div className="device-info">
-              <h3>{device.mqttUsername}</h3>
-              <p>Broker: {device.brokerUrl}</p>
-              <p>Tạo lúc: {new Date(device.createdAt).toLocaleString('vi-VN')}</p>
+          <div key={device.id} className="card p-4 flex justify-between items-start">
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-800">{device.mqttUsername}</h3>
+              <p className="text-sm text-gray-600">Broker: {device.brokerUrl}</p>
+              <p className="text-sm text-gray-600">Tạo lúc: {new Date(device.createdAt).toLocaleString('vi-VN')}</p>
             </div>
-            <div className="device-status">
-              {device.isActive && <span className="active-badge">Hoạt động</span>}
-            </div>
+            {device.isActive && <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Hoạt động</span>}
           </div>
         ))}
       </div>
@@ -62,52 +59,58 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1>Dashboard</h1>
-        <div className="header-right">
-          <span className="username">Xin chào, {user?.username}</span>
-          <button onClick={handleLogout} className="logout-btn">
-            Đăng Xuất
-          </button>
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-lg">Xin chào, {user?.username}</span>
+            <button onClick={handleLogout} className="btn-secondary">
+              Đăng Xuất
+            </button>
+          </div>
         </div>
       </header>
 
-      <nav className="dashboard-nav">
-        <button
-          className="nav-btn"
-          onClick={() => navigate('/dashboard')}
-        >
-          📊 Tổng quan
-        </button>
-        <button
-          className="nav-btn"
-          onClick={() => navigate('/mqtt')}
-        >
-          🔧 Quản lý MQTT
-        </button>
-        <button
-          className="nav-btn"
-          onClick={() => navigate('/sensor-data')}
-        >
-          📈 Dữ liệu Cảm biến
-        </button>
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex gap-2">
+          <button
+            className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors"
+            onClick={() => navigate('/dashboard')}
+          >
+            📊 Tổng quan
+          </button>
+          <button
+            className="px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+            onClick={() => navigate('/mqtt')}
+          >
+            🔧 Quản lý MQTT
+          </button>
+          <button
+            className="px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+            onClick={() => navigate('/sensor-data')}
+          >
+            📈 Dữ liệu Cảm biến
+          </button>
+        </div>
       </nav>
 
-      <main className="dashboard-main">
-        <div className="status-card">
-          <h2>Trạng Thái Broker MQTT</h2>
-          <div className={`status-indicator ${brokerStatus.isConnected ? 'connected' : 'disconnected'}`}>
-            <span className="status-dot"></span>
-            <span>{brokerStatus.isConnected ? 'Đã kết nối' : 'Chưa kết nối'}</span>
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        <div className="card p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Trạng Thái Broker MQTT</h2>
+          <div className="flex items-center gap-3">
+            <div className={`w-4 h-4 rounded-full ${brokerStatus.isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className={`text-lg font-semibold ${brokerStatus.isConnected ? 'text-green-600' : 'text-red-600'}`}>
+              {brokerStatus.isConnected ? 'Đã kết nối' : 'Chưa kết nối'}
+            </span>
           </div>
         </div>
 
-        <div className="devices-card">
-          <div className="card-header">
-            <h2>Thiết Bị MQTT Đang Hoạt Động</h2>
+        <div className="card p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Thiết Bị MQTT Đang Hoạt Động</h2>
             <button
-              className="view-all-btn"
+              className="text-indigo-600 hover:text-purple-600 font-semibold transition-colors"
               onClick={() => navigate('/mqtt')}
             >
               Xem tất cả →

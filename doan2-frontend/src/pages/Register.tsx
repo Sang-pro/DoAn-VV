@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import './Register.css';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -63,7 +62,6 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // Call register API (implement in auth service if needed)
       const response = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         headers: {
@@ -81,7 +79,6 @@ const Register = () => {
         throw new Error(data.message || 'Đăng ký thất bại');
       }
 
-      // Auto login after successful registration
       await login(formData.username, formData.password);
       navigate('/dashboard');
     } catch (err: any) {
@@ -92,12 +89,12 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <h1>Đăng Ký Tài Khoản</h1>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 font-sans p-4">
+      <div className="bg-white rounded-xl shadow-2xl p-10 w-full max-w-md">
+        <h1 className="text-center text-gray-800 mb-8 text-3xl font-bold">Đăng Ký Tài Khoản</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="register-username">Tên đăng nhập</label>
+            <label htmlFor="register-username" className="label">Tên đăng nhập</label>
             <input
               type="text"
               id="register-username"
@@ -105,13 +102,14 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               placeholder="Nhập tên đăng nhập"
+              className="input-field"
               disabled={loading}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="register-email">Email</label>
+            <label htmlFor="register-email" className="label">Email</label>
             <input
               type="email"
               id="register-email"
@@ -119,13 +117,14 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Nhập email"
+              className="input-field"
               disabled={loading}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="register-password">Mật khẩu</label>
+            <label htmlFor="register-password" className="label">Mật khẩu</label>
             <input
               type="password"
               id="register-password"
@@ -133,13 +132,14 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Nhập mật khẩu"
+              className="input-field"
               disabled={loading}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="register-confirm-password">Xác nhận mật khẩu</label>
+            <label htmlFor="register-confirm-password" className="label">Xác nhận mật khẩu</label>
             <input
               type="password"
               id="register-confirm-password"
@@ -147,22 +147,23 @@ const Register = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Xác nhận mật khẩu"
+              className="input-field"
               disabled={loading}
               required
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-box">{error}</div>}
 
-          <button type="submit" className="submit-btn" disabled={loading}>
+          <button type="submit" className="btn-primary w-full mt-2" disabled={loading}>
             {loading ? 'Đang đăng ký...' : 'Đăng Ký'}
           </button>
         </form>
 
-        <div className="footer">
+        <div className="text-center mt-6 text-gray-600 text-sm">
           <p>
             Đã có tài khoản?{' '}
-            <Link to="/login" className="link">
+            <Link to="/login" className="text-indigo-600 font-semibold hover:text-purple-600 transition-colors">
               Đăng nhập
             </Link>
           </p>

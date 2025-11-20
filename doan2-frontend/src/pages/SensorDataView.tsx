@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { mqttAPI } from '../api/mqtt';
-import './SensorDataView.css';
 
 interface SensorReading {
   id?: string;
@@ -24,12 +23,10 @@ export const SensorDataView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load active devices on mount
   useEffect(() => {
     loadDevices();
   }, []);
 
-  // Subscribe to WebSocket messages when device selected
   useEffect(() => {
     if (!selectedDevice || !isConnected) return;
 
@@ -100,80 +97,83 @@ export const SensorDataView = () => {
   };
 
   return (
-    <div className="sensor-data-view">
-      <div className="sensor-header">
-        <h1>Dữ liệu Cảm biến Realtime</h1>
-        <div className="connection-status">
-          <span className={`status-indicator ${isConnected ? 'connected' : 'disconnected'}`}></span>
-          <span>{isConnected ? 'Kết nối' : 'Ngắt kết nối'}</span>
-        </div>
-      </div>
-
-      {error && <div className="alert alert-error">{error}</div>}
-
-      {loading && <div className="loading">Đang tải...</div>}
-
-      {!loading && devices.length === 0 && (
-        <div className="empty-state">
-          <p>Không có thiết bị MQTT nào. Vui lòng thêm thiết bị từ trang Quản lý MQTT.</p>
-        </div>
-      )}
-
-      {!loading && devices.length > 0 && (
-        <>
-          <div className="device-selector">
-            <label htmlFor="device-select">Chọn thiết bị:</label>
-            <select
-              id="device-select"
-              value={selectedDevice}
-              onChange={(e) => handleDeviceChange(e.target.value)}
-            >
-              {devices.map((device) => (
-                <option key={device.id} value={device.id}>
-                  {device.mqttUsername}
-                </option>
-              ))}
-            </select>
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Dữ liệu Cảm biến Realtime</h1>
+          <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>
+            <span>{isConnected ? 'Kết nối' : 'Ngắt kết nối'}</span>
           </div>
+        </div>
+      </header>
 
-          <div className="sensor-data-container">
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        {error && <div className="error-box">{error}</div>}
+
+        {loading && <div className="text-center text-gray-600 py-8">Đang tải...</div>}
+
+        {!loading && devices.length === 0 && (
+          <div className="card p-8 text-center text-gray-500">
+            <p>Không có thiết bị MQTT nào. Vui lòng thêm thiết bị từ trang Quản lý MQTT.</p>
+          </div>
+        )}
+
+        {!loading && devices.length > 0 && (
+          <>
+            <div className="card p-6">
+              <label htmlFor="device-select" className="label block mb-2">Chọn thiết bị:</label>
+              <select
+                id="device-select"
+                value={selectedDevice}
+                onChange={(e) => handleDeviceChange(e.target.value)}
+                className="input-field"
+              >
+                {devices.map((device) => (
+                  <option key={device.id} value={device.id}>
+                    {device.mqttUsername}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {sensorReadings.length === 0 ? (
-              <div className="waiting-data">
+              <div className="card p-8 text-center text-gray-500">
                 <p>Chờ dữ liệu từ cảm biến...</p>
               </div>
             ) : (
               <>
-                <div className="sensor-metrics">
-                  <div className="metric-card temperature">
-                    <div className="metric-label">Nhiệt độ</div>
-                    <div className="metric-value">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="card p-6 bg-gradient-to-br from-orange-400 to-orange-500 text-white">
+                    <div className="text-sm font-semibold opacity-90">Nhiệt độ</div>
+                    <div className="text-3xl font-bold mt-2">
                       {getLatestValue('temperature') === null
                         ? 'N/A'
                         : formatValue(getLatestValue('temperature'), 'temperature')}
                     </div>
                   </div>
 
-                  <div className="metric-card humidity">
-                    <div className="metric-label">Độ ẩm</div>
-                    <div className="metric-value">
+                  <div className="card p-6 bg-gradient-to-br from-blue-400 to-blue-500 text-white">
+                    <div className="text-sm font-semibold opacity-90">Độ ẩm</div>
+                    <div className="text-3xl font-bold mt-2">
                       {getLatestValue('humidity') === null
                         ? 'N/A'
                         : formatValue(getLatestValue('humidity'), 'humidity')}
                     </div>
                   </div>
 
-                  <div className="metric-card pressure">
-                    <div className="metric-label">Áp suất</div>
-                    <div className="metric-value">
+                  <div className="card p-6 bg-gradient-to-br from-purple-400 to-purple-500 text-white">
+                    <div className="text-sm font-semibold opacity-90">Áp suất</div>
+                    <div className="text-3xl font-bold mt-2">
                       {getLatestValue('pressure') === null
                         ? 'N/A'
                         : formatValue(getLatestValue('pressure'), 'pressure')}
                     </div>
                   </div>
 
-                  <div className="metric-card light">
-                    <div className="metric-label">Ánh sáng</div>
-                    <div className="metric-value">
+                  <div className="card p-6 bg-gradient-to-br from-yellow-400 to-yellow-500 text-white">
+                    <div className="text-sm font-semibold opacity-90">Ánh sáng</div>
+                    <div className="text-3xl font-bold mt-2">
                       {getLatestValue('light') === null
                         ? 'N/A'
                         : formatValue(getLatestValue('light'), 'light')}
@@ -181,56 +181,60 @@ export const SensorDataView = () => {
                   </div>
                 </div>
 
-                <div className="sensor-readings">
-                  <h2>Lịch sử dữ liệu (100 bản ghi gần nhất)</h2>
-                  <div className="readings-table">
-                    <div className="table-header">
-                      <div className="col-timestamp">Thời gian</div>
-                      <div className="col-temperature">Nhiệt độ</div>
-                      <div className="col-humidity">Độ ẩm</div>
-                      <div className="col-pressure">Áp suất</div>
-                      <div className="col-light">Ánh sáng</div>
-                      <div className="col-data">Dữ liệu khác</div>
-                    </div>
-                    <div className="table-body">
-                      {sensorReadings.map((reading) => (
-                        <div key={reading.id} className="table-row">
-                          <div className="col-timestamp">{reading.timestamp}</div>
-                          <div className="col-temperature">
-                            {reading.temperature === undefined
-                              ? '-'
-                              : formatValue(reading.temperature, 'temperature')}
-                          </div>
-                          <div className="col-humidity">
-                            {reading.humidity === undefined
-                              ? '-'
-                              : formatValue(reading.humidity, 'humidity')}
-                          </div>
-                          <div className="col-pressure">
-                            {reading.pressure === undefined
-                              ? '-'
-                              : formatValue(reading.pressure, 'pressure')}
-                          </div>
-                          <div className="col-light">
-                            {reading.light === undefined
-                              ? '-'
-                              : formatValue(reading.light, 'light')}
-                          </div>
-                          <div className="col-data">
-                            {reading.other && Object.keys(reading.other).length > 0
-                              ? JSON.stringify(reading.other)
-                              : '-'}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                <div className="card p-6">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Lịch sử dữ liệu (100 bản ghi gần nhất)</h2>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-gray-200 text-gray-800">
+                          <th className="px-4 py-2 text-left">Thời gian</th>
+                          <th className="px-4 py-2 text-right">Nhiệt độ</th>
+                          <th className="px-4 py-2 text-right">Độ ẩm</th>
+                          <th className="px-4 py-2 text-right">Áp suất</th>
+                          <th className="px-4 py-2 text-right">Ánh sáng</th>
+                          <th className="px-4 py-2 text-left">Dữ liệu khác</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {sensorReadings.map((reading) => (
+                          <tr key={reading.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 text-gray-700">{reading.timestamp}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">
+                              {reading.temperature === undefined
+                                ? '-'
+                                : formatValue(reading.temperature, 'temperature')}
+                            </td>
+                            <td className="px-4 py-3 text-right text-gray-700">
+                              {reading.humidity === undefined
+                                ? '-'
+                                : formatValue(reading.humidity, 'humidity')}
+                            </td>
+                            <td className="px-4 py-3 text-right text-gray-700">
+                              {reading.pressure === undefined
+                                ? '-'
+                                : formatValue(reading.pressure, 'pressure')}
+                            </td>
+                            <td className="px-4 py-3 text-right text-gray-700">
+                              {reading.light === undefined
+                                ? '-'
+                                : formatValue(reading.light, 'light')}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 font-mono text-xs">
+                              {reading.other && Object.keys(reading.other).length > 0
+                                ? JSON.stringify(reading.other)
+                                : '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </>
             )}
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </main>
     </div>
   );
 };

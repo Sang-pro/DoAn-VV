@@ -79,7 +79,7 @@ public class MqttService implements IMqttService {
         Mqtt mqtt = getMqttDeviceById(id)
                 .orElseThrow(() -> new RuntimeException("MQTT device not found: " + id));
         
-        //mqtt.setIsActive(false);
+        mqtt.setActive(false);
         mqtt.setUpdatedAt(Instant.now());
         mqttRepository.save(mqtt);
     }
