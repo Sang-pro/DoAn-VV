@@ -21,11 +21,15 @@ public class Mqtt {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(nullable = false)
+    private String mqttUsername;
 
     @Column(nullable = false)
-    private String password;
+    private String mqttPassword;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @Column(name = "broker_url", nullable = false)
     private String brokerUrl;

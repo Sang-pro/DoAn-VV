@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,14 +36,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-//@RequiredArgsConstructor
 public class AuthService implements IAuthService {
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
     private final ITokenService tokenService;
     private final IRefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
-    private final ObjectProvider<AuthenticationManager> authenticationManagerProvider;
+    private final AuthenticationManager authenticationManager;
 
     public AuthService(
             IUserRepository userRepository, 
@@ -52,23 +50,20 @@ public class AuthService implements IAuthService {
             ITokenService tokenService,
             IRefreshTokenService refreshTokenService,
             PasswordEncoder passwordEncoder,
-            ObjectProvider<AuthenticationManager> authenticationManagerProvider) {
+            AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
         this.refreshTokenService = refreshTokenService;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManagerProvider = authenticationManagerProvider;
+        this.authenticationManager = authenticationManager;
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         try {
-            // Get authentication manager lazily to avoid circular dependency
-            AuthenticationManager authenticationManager = authenticationManagerProvider.getObject();
-            
-            // Authenticate
+            // Authenticate using injected AuthenticationManager
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),

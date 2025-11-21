@@ -85,19 +85,12 @@ public class User {
         }
     }
     
-    // (Moved initialization into single @PrePersist below)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Mqtt mqtt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
-
-    // ----- Phần quan trọng cho MQTT -----
-    @Column(unique = true, nullable = false)
-    private String mqttUsername;
-
-    @Column(nullable = false)
-    private String mqttPassword;
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SensorData> sensorData = new HashSet<>();
 
     // Ensure only a single @PrePersist method exists: consolidate initialization logic here.
     @PrePersist
@@ -112,13 +105,6 @@ public class User {
         // active flag
         if (!isActive) {
             isActive = true;
-        }
-        // mqtt credentials
-        if (this.mqttUsername == null) {
-            this.mqttUsername = "device_" + this.username;
-        }
-        if (this.mqttPassword == null) {
-            this.mqttPassword = UUID.randomUUID().toString().substring(0, 16);
         }
     }
 

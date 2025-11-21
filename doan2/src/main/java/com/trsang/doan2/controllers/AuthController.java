@@ -108,8 +108,9 @@ public class AuthController {
             }
     )
     public ResponseEntity<MessageResponse> register (
-        @Valid @RequestBody RegisterRequest registerRequest, HttpServletRequest request) {
-        
+           @Valid @RequestBody RegisterRequest registerRequest, 
+                               HttpServletRequest request) {
+    
         MessageResponse response = authService.registerUser(registerRequest);
         if (response.isSuccess()) {
             eventPublisher.publishEvent(new AuthenticationEvent(
@@ -140,8 +141,8 @@ public class AuthController {
     )
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<MessageResponse> logout(
-            @RequestBody(required = true) HttpServletRequest request, LogoutRequest logoutRequest) {
-        
+           HttpServletRequest request, @Valid @RequestBody LogoutRequest logoutRequest) {
+
         MessageResponse response = authService.logoutUser(logoutRequest);
         if (logoutRequest != null && logoutRequest.getUsername() != null) {
             eventPublisher.publishEvent(new AuthenticationEvent(

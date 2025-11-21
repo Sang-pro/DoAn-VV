@@ -22,18 +22,18 @@ public class MqttService implements IMqttService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Mqtt registerMqttDevice(String username, String password, String brokerUrl) {
-        log.info("Registering MQTT device: {}", username);
+    public Mqtt registerMqttDevice(String mqttUsername, String mqttPassword, String brokerUrl) {
+        log.info("Registering MQTT device: {}", mqttUsername);
         
         // Check if device already exists
-        Optional<Mqtt> existing = getMqttDeviceByUsername(username);
+        Optional<Mqtt> existing = getMqttDeviceByUsername(mqttUsername);
         if (existing.isPresent()) {
-            throw new RuntimeException("MQTT device already exists for username: " + username);
+            throw new RuntimeException("MQTT device already exists for username: " + mqttUsername);
         }
         
         Mqtt mqtt = Mqtt.builder()
-                .username(username)
-                .password(passwordEncoder.encode(password))
+                .mqttUsername(mqttUsername)
+                .mqttPassword(passwordEncoder.encode(mqttPassword))
                 .brokerUrl(brokerUrl)
                 .isActive(true)
                 .build();
@@ -42,14 +42,14 @@ public class MqttService implements IMqttService {
     }
 
     @Override
-    public Mqtt updateMqttDevice(UUID id, String password, boolean isActive) {
+    public Mqtt updateMqttDevice(UUID id, String mqttPassword, boolean isActive) {
         log.info("Updating MQTT device: {}", id);
         
         Mqtt mqtt = getMqttDeviceById(id)
                 .orElseThrow(() -> new RuntimeException("MQTT device not found: " + id));
 
-        if (password != null && !password.isEmpty()) {
-            mqtt.setPassword(passwordEncoder.encode(password));
+        if (mqttPassword != null && !mqttPassword.isEmpty()) {
+            mqtt.setMqttPassword(passwordEncoder.encode(mqttPassword));
         }
         mqtt.setActive(isActive);
         mqtt.setUpdatedAt(Instant.now());
@@ -58,8 +58,8 @@ public class MqttService implements IMqttService {
     }
 
     @Override
-    public Optional<Mqtt> getMqttDeviceByUsername(String username) {
-        return mqttRepository.findByUsername(username);
+    public Optional<Mqtt> getMqttDeviceByUsername(String mqttUsername) {
+        return mqttRepository.findByMqttUsername(mqttUsername);
     }
 
     @Override

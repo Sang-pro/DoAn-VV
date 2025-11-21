@@ -42,7 +42,7 @@ public class MqttController {
             
             MqttCredentialsResponse response = MqttCredentialsResponse.builder()
                     .id(mqtt.getId().toString())
-                    .mqttUsername(mqtt.getUsername())
+                    .mqttUsername(mqtt.getMqttUsername())
                     .brokerUrl(mqtt.getBrokerUrl())
                     .isActive(mqtt.isActive())
                     .createdAt(mqtt.getCreatedAt())
@@ -64,7 +64,7 @@ public class MqttController {
             
             MqttCredentialsResponse response = MqttCredentialsResponse.builder()
                     .id(mqtt.getId().toString())
-                    .mqttUsername(mqtt.getUsername())
+                    .mqttUsername(mqtt.getMqttUsername())
                     .brokerUrl(mqtt.getBrokerUrl())
                     .isActive(mqtt.isActive())
                     .createdAt(mqtt.getCreatedAt())
@@ -87,7 +87,7 @@ public class MqttController {
             
             MqttCredentialsResponse response = MqttCredentialsResponse.builder()
                     .id(mqtt.getId().toString())
-                    .mqttUsername(mqtt.getUsername())
+                    .mqttUsername(mqtt.getMqttUsername())
                     .brokerUrl(mqtt.getBrokerUrl())
                     .isActive(mqtt.isActive())
                     .createdAt(mqtt.getCreatedAt())
@@ -109,7 +109,7 @@ public class MqttController {
             List<MqttCredentialsResponse> responses = devices.stream()
                     .map(mqtt -> MqttCredentialsResponse.builder()
                             .id(mqtt.getId().toString())
-                            .mqttUsername(mqtt.getUsername())
+                            .mqttUsername(mqtt.getMqttUsername())
                             .brokerUrl(mqtt.getBrokerUrl())
                             .isActive(mqtt.isActive())
                             .createdAt(mqtt.getCreatedAt())
@@ -141,7 +141,7 @@ public class MqttController {
             
             MqttCredentialsResponse response = MqttCredentialsResponse.builder()
                     .id(mqtt.getId().toString())
-                    .mqttUsername(mqtt.getUsername())
+                    .mqttUsername(mqtt.getMqttUsername())
                     .brokerUrl(mqtt.getBrokerUrl())
                     .isActive(mqtt.isActive())
                     .createdAt(mqtt.getCreatedAt())

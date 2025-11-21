@@ -9,17 +9,17 @@ public interface IMqttService {
     /**
      * Register a new MQTT device/credential
      */
-    Mqtt registerMqttDevice(String username, String password, String brokerUrl);
+    Mqtt registerMqttDevice(String mqttUsername, String mqttPassword, String brokerUrl);
 
     /**
      * Update MQTT device credentials
      */
-    Mqtt updateMqttDevice(UUID id, String password, boolean isActive);
+    Mqtt updateMqttDevice(UUID id, String mqttPassword, boolean isActive);
 
     /**
      * Get MQTT device by username
      */
-    Optional<Mqtt> getMqttDeviceByUsername(String username);
+    Optional<Mqtt> getMqttDeviceByUsername(String mqttUsername);
 
     /**
      * Get all active MQTT devices

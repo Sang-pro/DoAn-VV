@@ -16,7 +16,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import com.trsang.doan2.repositories.IUserRepository;
 import com.trsang.doan2.security.JwtAuthenticationFilter;
+import com.trsang.doan2.security.UserDetailsImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Configuration
 @EnableWebSecurity
@@ -25,15 +29,24 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CorsConfig corsConfig;
+    private final IUserRepository userRepository;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CorsConfig corsConfig) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CorsConfig corsConfig, IUserRepository userRepository) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfig = corsConfig;
+        this.userRepository = userRepository;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findByUsername(username)
+                .map(UserDetailsImpl::build)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
     
     @Bean

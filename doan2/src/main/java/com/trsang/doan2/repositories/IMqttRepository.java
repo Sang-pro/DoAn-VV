@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface IMqttRepository extends JpaRepository<Mqtt, UUID> {
     List<Mqtt> findByIsActiveTrue();
     
-    Optional<Mqtt> findByUsername(String username);
+    Optional<Mqtt> findByMqttUsername(String mqttUsername);
 }
