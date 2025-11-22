@@ -3,16 +3,17 @@ package com.trsang.doan2.services.implementation;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.mqtt.support.MqttHeaders;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import com.trsang.doan2.services.interfaces.ISocketService;
 
 @Service
 public class MqttInboundToWebSocketBridge {
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ISocketService socketService;
 
-    public MqttInboundToWebSocketBridge(SimpMessagingTemplate simpMessagingTemplate) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
+    public MqttInboundToWebSocketBridge(ISocketService socketService) {
+        this.socketService = socketService;
     }
 
     @ServiceActivator(inputChannel = "mqttInputChannel")
@@ -20,18 +21,9 @@ public class MqttInboundToWebSocketBridge {
         String topic = (String) message.getHeaders().get(MqttHeaders.RECEIVED_TOPIC);
         Object payload = message.getPayload();
 
-        // topic pattern is expected: data/{mqttUsername}/sensors
-        String mqttUsername = "unknown";
         if (topic != null) {
-            String[] parts = topic.split("/");
-            if (parts.length >= 2) {
-                mqttUsername = parts[1];
-            }
+            socketService.sendMessage(topic, payload);
         }
-
-        // Forward payload to STOMP destination for that device/user
-        String destination = "/topic/sensors/" + mqttUsername;
-        simpMessagingTemplate.convertAndSend(destination, payload);
     }
 
 }

@@ -28,4 +28,7 @@ public interface IRefreshTokenRepository extends JpaRepository<RefreshToken, UUI
     @Query("UPDATE RefreshToken r SET r.isRevoked = true, r.reasonRevoked = 'User logout' WHERE r.user = :user")
     int revokeAllUserTokens(@Param("user") User user);
 
+    @Modifying
+    int deleteByUser(User user);
+
 }

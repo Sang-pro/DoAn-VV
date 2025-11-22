@@ -17,19 +17,12 @@ export const useWebSocket = () => {
     if (!token || !user) return;
 
     const wsProtocol = globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${globalThis.location.host}/ws`;
+    const wsUrl = `${wsProtocol}//${globalThis.location.host}/ws-plain`;
 
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       console.log('WebSocket connected');
-      ws.send(
-        JSON.stringify({
-          type: 'CONNECT',
-          token: token,
-          username: user.username,
-        })
-      );
     };
 
     ws.onmessage = (event) => {

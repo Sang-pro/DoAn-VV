@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import { MqttManager } from './pages/MqttManager';
 import { SensorDataView } from './pages/SensorDataView';
 import ProtectedRoute from './components/ProtectedRoute';
+import UserManagement from './pages/UserManagement';
 import './App.css';
 
 function App() {
@@ -41,6 +42,14 @@ function App() {
           element={
             <ProtectedRoute>
               <SensorDataView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <UserManagement />
             </ProtectedRoute>
           }
         />

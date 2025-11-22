@@ -16,8 +16,34 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  displayName?: string;
+  phoneNumber?: string;
   isActive: boolean;
+  lockedUntil?: string;
+  roles: string[];
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateUser {
+    username: string;
+    email: string;
+    password?: string;
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    roles?: string[];
+}
+
+export interface UpdateUser {
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    roles?: string[];
+}
+
+export interface UserStatusUpdate {
+    isActive: boolean;
 }
 
 // MQTT types

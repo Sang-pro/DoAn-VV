@@ -12,6 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -244,6 +245,20 @@ public class AdminController {
                     .body(new MessageResponse (e.getMessage(), false));
 
         }     
+    }
+
+    @DeleteMapping("/users/{userId}")
+    @Operation(summary = "Delete a user")
+    public ResponseEntity<MessageResponse> deleteUser(@PathVariable UUID userId) {
+        try {
+            MessageResponse response = adminUserService.deleteUser(userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error deleting user: {}", userId, e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse(e.getMessage(), false));
+        }
     }
 
     private String getClientIp(HttpServletRequest httpRequest) {

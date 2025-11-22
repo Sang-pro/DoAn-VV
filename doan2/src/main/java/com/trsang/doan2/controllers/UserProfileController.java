@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/users/profile")
+@RequestMapping("/api/user-profiles")
 @RequiredArgsConstructor
 @Tag(name = "User Profile", description = "User profile management endpoints")
 @SecurityRequirement(name = "bearerAuth")

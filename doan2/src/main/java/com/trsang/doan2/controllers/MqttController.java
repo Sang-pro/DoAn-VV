@@ -102,7 +102,7 @@ public class MqttController {
     }
 
     @GetMapping("/active")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<MqttCredentialsResponse>> getActiveMqttDevices() {
         try {
             List<Mqtt> devices = mqttService.getActiveMqttDevices();
@@ -197,7 +197,7 @@ public class MqttController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<MessageResponse> publishMessage(
             @RequestParam String topic,
-            @RequestBody String message,
+            @RequestParam String message,
             @RequestParam(defaultValue = "1") int qos) {
         try {
             mqttService.publishMessage(topic, message, qos);
@@ -216,7 +216,7 @@ public class MqttController {
     }
 
     @GetMapping("/broker-status")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<Map<String, Object>> getBrokerStatus() {
         try {
             boolean isConnected = mqttService.isBrokerConnected();

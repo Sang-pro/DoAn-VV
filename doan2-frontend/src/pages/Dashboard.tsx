@@ -88,6 +88,12 @@ const Dashboard: React.FC = () => {
           </button>
           <button
             className="px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+            onClick={() => navigate('/users')}
+          >
+            👥 Quản lý Người dùng
+          </button>
+          <button
+            className="px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 font-medium"
             onClick={() => navigate('/sensor-data')}
           >
             📈 Dữ liệu Cảm biến
