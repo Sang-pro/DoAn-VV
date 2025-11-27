@@ -25,25 +25,33 @@ public class SensorData {
 
     @Builder.Default
     @Column(name = "is_tipping", nullable = false)
-    private boolean is_tipping = false;
+    private boolean isTipping = false;
     
     @Builder.Default
     @Column(name = "is_detected_human", nullable = false)
-    private boolean is_detected_human = false;
+    private boolean isDetectedHuman = false;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
     @Column(nullable = false)
-    private double distance;
+    private Double distance;
 
-    @Builder.Default
-    @Column(name = "is_detected_co", nullable = false)
-    private boolean is_detected_co = false;
+    @Column(name = "gas", nullable = false)
+    private Integer gas;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(name = "satellites", nullable = false)
+    private Integer satellites;
+
+    @Column(name = "latitude", nullable = false)
+    private Double latitude;
+    
+    @Column(name = "longitude", nullable = false)
+    private Double longitude;
 
     @PrePersist
     protected void onCreate() {
