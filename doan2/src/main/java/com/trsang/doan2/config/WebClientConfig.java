@@ -22,7 +22,7 @@ import reactor.netty.resources.ConnectionProvider;
 @Configuration
 public class WebClientConfig {
     @Bean
-    public WebClient ollamaWebClient(MqttConfig mqttConfig) {
+    public WebClient mqttWebClient(MqttConfig mqttConfig) {
         ConnectionProvider provider = ConnectionProvider.builder("mqttConnectionProvider")
                 .maxConnections(30)
                 .maxIdleTime(Duration.ofSeconds(30))
@@ -46,6 +46,37 @@ public class WebClientConfig {
 
         return WebClient.builder()
                 .baseUrl(("${mqtt.server-uris:tcp://localhost:1883}"))
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .exchangeStrategies(exchangeStrategies)
+                .filter(logRequest())
+                .filter(logResponse())
+                .filter(handleErrors())
+                .build();
+    }
+
+    @Bean
+    public WebClient ollamaWebClient(OllamaConfig ollamaConfig) {
+        ConnectionProvider provider = ConnectionProvider.builder("ollama-connection-pool")
+                .maxConnections(30)
+                .maxIdleTime(Duration.ofSeconds(30))
+                .maxLifeTime(Duration.ofMinutes(5))
+                .pendingAcquireTimeout(Duration.ofSeconds(55))
+                .evictInBackground(Duration.ofSeconds(120))
+                .build();
+
+        HttpClient httpClient = HttpClient.create(provider)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, ollamaConfig.getTimeoutSeconds() * 1000)
+                .responseTimeout(Duration.ofSeconds(ollamaConfig.getTimeoutSeconds()))
+                .doOnConnected(conn -> 
+                        conn.addHandlerLast(new ReadTimeoutHandler(ollamaConfig.getTimeoutSeconds(), TimeUnit.SECONDS))
+                        .addHandlerLast(new WriteTimeoutHandler(ollamaConfig.getTimeoutSeconds(), TimeUnit.SECONDS)));
+        
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)) // 16MB
+                .build();
+
+        return WebClient.builder()
+                .baseUrl(ollamaConfig.getApiUrl())
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .exchangeStrategies(exchangeStrategies)
                 .filter(logRequest())

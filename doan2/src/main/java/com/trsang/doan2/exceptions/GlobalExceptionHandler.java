@@ -202,4 +202,15 @@ public class GlobalExceptionHandler {
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             new Date());
     }
+
+    @ExceptionHandler(ChatException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleChatException(ChatException ex, HttpServletRequest request) {
+        log.error("Loi trong qua trinh xu ly Chat: {}", ex.getMessage());
+        return new ErrorResponse(
+            request.getRequestURI(),
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST.value(),
+            new Date());
+    }
 }

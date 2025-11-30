@@ -98,6 +98,12 @@ const Dashboard: React.FC = () => {
           >
             📈 Dữ liệu Cảm biến
           </button>
+          <button
+            className="px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+            onClick={() => navigate('/ai-hub')}
+          >
+            🤖 AI Hub
+          </button>
         </div>
       </nav>
 

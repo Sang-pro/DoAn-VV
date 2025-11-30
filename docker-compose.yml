@@ -64,6 +64,24 @@ services:
     networks:
       - app-network
 
+  # Ollama Service
+  ollama:
+    image: ollama/ollama
+    container_name: doan-vv-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - app-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
   # Database Management Tool (Adminer)
   adminer:
     image: adminer
@@ -79,6 +97,7 @@ volumes:
   db-data:
   mosquitto-data:
   mosquitto-log:
+  ollama-data:
 
 networks:
   app-network:

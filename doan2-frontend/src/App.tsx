@@ -8,6 +8,7 @@ import { MqttManager } from './pages/MqttManager';
 import { SensorDataView } from './pages/SensorDataView';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserManagement from './pages/UserManagement';
+import AIHub from './pages/AIHub';
 import './App.css';
 
 function App() {
@@ -50,6 +51,14 @@ function App() {
           element={
             <ProtectedRoute>
               <UserManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ai-hub"
+          element={
+            <ProtectedRoute>
+              <AIHub />
             </ProtectedRoute>
           }
         />
