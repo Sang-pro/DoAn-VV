@@ -9,7 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@greatsumini/react-facebook-login": "^3.4.0",
+    "@react-google-maps/api": "^2.20.8",
+    "@react-oauth/google": "^0.13.4",
     "axios": "^1.13.2",
+    "framer-motion": "^12.38.0",
+    "google-maps": "^4.3.3",
+    "lucide-react": "^1.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.66.1",
@@ -23,6 +29,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.22",
+    "baseline-browser-mapping": "^2.10.10",
     "postcss": "^8.5.6",
     "typescript": "^5.7.2",
     "vite": "^6.2.2"

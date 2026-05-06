@@ -7,7 +7,15 @@ import Dashboard from './pages/Dashboard';
 import { MqttManager } from './pages/MqttManager';
 import { SensorDataView } from './pages/SensorDataView';
 import ProtectedRoute from './components/ProtectedRoute';
+import RoleProtectedRoute from './components/RoleProtectedRoute';
 import UserManagement from './pages/UserManagement';
+import ProductManagement from './pages/ProductManagement';
+import EslManagement from './pages/EslManagement';
+import PickToLight from './pages/PickToLight';
+import ShelfMap from './pages/ShelfMap';
+import Cashier from './pages/Cashier';
+import AIChatbot from './components/AIChatbot';
+import MainLayout from './components/MainLayout';
 import './App.css';
 
 function App() {
@@ -22,39 +30,54 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
-          path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <MainLayout />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path="/mqtt"
-          element={
-            <ProtectedRoute>
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/pick-to-light" element={<PickToLight />} />
+          
+          <Route path="/mqtt" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <MqttManager />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sensor-data"
-          element={
-            <ProtectedRoute>
+            </RoleProtectedRoute>
+          } />
+          <Route path="/sensor-data" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <SensorDataView />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/users"
-          element={
-            <ProtectedRoute>
+            </RoleProtectedRoute>
+          } />
+          <Route path="/users" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <UserManagement />
-            </ProtectedRoute>
-          }
-        />
+            </RoleProtectedRoute>
+          } />
+          <Route path="/products" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <ProductManagement />
+            </RoleProtectedRoute>
+          } />
+          <Route path="/esl" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <EslManagement />
+            </RoleProtectedRoute>
+          } />
+          <Route path="/shelf-map" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_USER', 'ROLE_CASHIER']}>
+              <ShelfMap />
+            </RoleProtectedRoute>
+          } />
+          <Route path="/cashier" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_CASHIER']}>
+              <Cashier />
+            </RoleProtectedRoute>
+          } />
+        </Route>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+      <AIChatbot />
     </BrowserRouter>
   );
 }

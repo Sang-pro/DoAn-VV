@@ -31,11 +31,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: (response: JwtResponse) => {
     const user: User = {
-      id: '',
+      id: response.id || '',
       username: response.username,
-      email: '',
+      email: response.email || '',
       isActive: true,
+      roles: response.roles || [],
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     localStorage.setItem('accessToken', response.accessToken);
     localStorage.setItem('user', JSON.stringify(user));

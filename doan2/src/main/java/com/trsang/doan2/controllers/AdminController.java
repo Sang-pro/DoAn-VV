@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -226,6 +228,30 @@ public class AdminController {
         } catch (Exception e) {
             log.error("Error fetching user: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/users")
+    @Operation(summary = "Create a new user")
+    public ResponseEntity<UserAdminResponse> createUser(@Valid @RequestBody com.trsang.doan2.dtos.requests.CreateUserRequest request) {
+        try {
+            UserAdminResponse newUser = adminUserService.createUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        } catch (Exception e) {
+            log.error("Error creating user: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @PutMapping("/users/{userId}")
+    @Operation(summary = "Update an existing user")
+    public ResponseEntity<UserAdminResponse> updateUser(@PathVariable UUID userId, @Valid @RequestBody com.trsang.doan2.dtos.requests.UpdateUserRequest request) {
+        try {
+            UserAdminResponse updatedUser = adminUserService.updateUser(userId, request);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            log.error("Error updating user: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 

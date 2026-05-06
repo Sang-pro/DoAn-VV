@@ -1,4 +1,5 @@
 package com.trsang.doan2.controllers;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,10 @@ import com.trsang.doan2.dtos.requests.LogoutRequest;
 import com.trsang.doan2.dtos.requests.RefreshTokenRequest;
 import com.trsang.doan2.dtos.requests.RegisterRequest;
 import com.trsang.doan2.dtos.requests.RevokeTokenRequest;
+import com.trsang.doan2.dtos.requests.UserOauthRequest;
 import com.trsang.doan2.dtos.responses.JwtResponse;
 import com.trsang.doan2.dtos.responses.MessageResponse;
+import com.trsang.doan2.events.AuthProvider;
 import com.trsang.doan2.events.AuthenticationEvent;
 import com.trsang.doan2.exceptions.AccountDeactivatedException;
 import com.trsang.doan2.exceptions.RefreshTokenException;
@@ -35,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Đồ án 2", description = "Direct API for project")
+@Tag(name = "Đồ án tốt nghiệp", description = "Direct API for project")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -228,6 +231,106 @@ public class AuthController {
             } else {
                 return ResponseEntity.badRequest().body(response);
             }
+    }
+
+    @PostMapping("/google")
+    @Operation(
+        summary = "Authenticate user via Google OAuth",
+        description = "Authenticate user using Google OAuth token (idToken), returns JWT token",
+        responses = {
+                @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully authenticated",
+                    content = @Content(schema = @Schema(implementation = JwtResponse.class))
+                ),
+                @ApiResponse(
+                    responseCode = "401", 
+                    description = "Invalid Google token or authentication failed"
+                )
+        }
+    )
+    public ResponseEntity<JwtResponse> oauth2LoginGoogle(
+            @Valid @RequestBody UserOauthRequest loginRequest, HttpServletRequest httpRequest) {
+        try {
+            loginRequest.setProvider(AuthProvider.GOOGLE);
+            JwtResponse jwtResponse = authService.authenticateUser(loginRequest);
+            eventPublisher.publishEvent(new AuthenticationEvent(
+                    this, 
+                    loginRequest.getToken(), 
+                    AuthenticationEvent.AuthEventType.LOGIN_SUCCESS,
+                    "Login successful",
+                    getClientIp(httpRequest)
+            ));
+            return ResponseEntity.ok(jwtResponse);
+        } catch (AccountDeactivatedException e) {
+            eventPublisher.publishEvent(new AuthenticationEvent(
+                    this, 
+                    loginRequest.getToken(), 
+                    AuthenticationEvent.AuthEventType.LOGIN_FAILED,
+                    "Account deactivated",
+                    getClientIp(httpRequest)
+            ));
+            throw e;
+        } catch (BadCredentialsException e) {
+            eventPublisher.publishEvent(new AuthenticationEvent(
+                    this, 
+                    loginRequest.getToken(), 
+                    AuthenticationEvent.AuthEventType.LOGIN_FAILED,
+                    "Invalid credentials",
+                    getClientIp(httpRequest)
+            ));
+            throw e;
+        }
+    }
+    
+    @PostMapping("/facebook")
+    @Operation(
+        summary = "Authenticate user via Facebook OAuth",
+        description = "Authenticate user using Facebook OAuth token (accessToken), returns JWT token",
+        responses = {
+                @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully authenticated",
+                    content = @Content(schema = @Schema(implementation = JwtResponse.class))
+                ),
+                @ApiResponse(
+                    responseCode = "401", 
+                    description = "Invalid Facebook token or authentication failed"
+                )
+        }
+    )
+    public ResponseEntity<JwtResponse> oauth2LoginFacebook(
+            @Valid @RequestBody UserOauthRequest loginRequest, HttpServletRequest httpRequest) {
+        try {
+            loginRequest.setProvider(AuthProvider.FACEBOOK);
+            JwtResponse jwtResponse = authService.authenticateUser(loginRequest);
+            eventPublisher.publishEvent(new AuthenticationEvent(
+                    this, 
+                    loginRequest.getToken(), 
+                    AuthenticationEvent.AuthEventType.LOGIN_SUCCESS,
+                    "Login successful",
+                    getClientIp(httpRequest)
+            ));
+            return ResponseEntity.ok(jwtResponse);
+        } catch (AccountDeactivatedException e) {
+            eventPublisher.publishEvent(new AuthenticationEvent(
+                    this, 
+                    loginRequest.getToken(), 
+                    AuthenticationEvent.AuthEventType.LOGIN_FAILED,
+                    "Account deactivated",
+                    getClientIp(httpRequest)
+            ));
+            throw e;
+        } catch (BadCredentialsException e) {
+            eventPublisher.publishEvent(new AuthenticationEvent(
+                    this, 
+                    loginRequest.getToken(), 
+                    AuthenticationEvent.AuthEventType.LOGIN_FAILED,
+                    "Invalid credentials",
+                    getClientIp(httpRequest)
+            ));
+            throw e;
+        }
     }
 
     private String getClientIp(HttpServletRequest request) {

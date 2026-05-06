@@ -22,7 +22,7 @@ import reactor.netty.resources.ConnectionProvider;
 @Configuration
 public class WebClientConfig {
     @Bean
-    public WebClient ollamaWebClient(MqttConfig mqttConfig) {
+    public WebClient ollamaWebClient(OllamaConfig ollamaConfig) {
         ConnectionProvider provider = ConnectionProvider.builder("mqttConnectionProvider")
                 .maxConnections(30)
                 .maxIdleTime(Duration.ofSeconds(30))
@@ -45,7 +45,7 @@ public class WebClientConfig {
                 .build();
 
         return WebClient.builder()
-                .baseUrl(("${mqtt.server-uris:tcp://localhost:1883}"))
+                .baseUrl(ollamaConfig.getApiUrl())
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .exchangeStrategies(exchangeStrategies)
                 .filter(logRequest())

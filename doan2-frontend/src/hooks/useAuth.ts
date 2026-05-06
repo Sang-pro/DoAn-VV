@@ -25,6 +25,38 @@ export const useAuth = () => {
     }
   };
 
+  const googleLogin = async (clientId: string, token: string) => {
+    store.setLoading(true);
+    store.setError(null);
+    try {
+      const response = await authAPI.googleLogin(clientId, token);
+      store.login(response.data);
+      return true;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Đăng nhập Google thất bại';
+      store.setError(errorMessage);
+      return false;
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const facebookLogin = async (clientId: string, token: string) => {
+    store.setLoading(true);
+    store.setError(null);
+    try {
+      const response = await authAPI.facebookLogin(clientId, token);
+      store.login(response.data);
+      return true;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Đăng nhập Facebook thất bại';
+      store.setError(errorMessage);
+      return false;
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       await authAPI.logout();
@@ -38,6 +70,8 @@ export const useAuth = () => {
   return {
     ...store,
     login,
+    googleLogin,
+    facebookLogin,
     logout,
   };
 };

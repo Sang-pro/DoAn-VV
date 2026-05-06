@@ -28,16 +28,22 @@ export const SensorDataView = () => {
   }, []);
 
   useEffect(() => {
-    if (!selectedDevice || !isConnected) return;
+    if (!isConnected) return;
 
-    const topic = `data/${selectedDevice}/sensors`;
-    const unsubscribe = subscribe(topic, (message) => {
+    // Subscribe to all smarttrash topics
+    const unsubscribe = subscribe('smarttrash', (message) => {
       try {
+        const payload = message.message;
+
+        // Parse if it's a string
+        const data = typeof payload === 'string' ? JSON.parse(payload) : payload;
+
         const reading: SensorReading = {
-          id: `${Date.now()}-${selectedDevice}`,
+          id: `${Date.now()}-${data.n || 'unknown'}`,
           timestamp: new Date().toLocaleString('vi-VN'),
-          ...message.message,
+          other: data, // Store all data in 'other'
         };
+
         setSensorReadings((prev) => [reading, ...prev.slice(0, 99)]);
       } catch (err) {
         console.error('Error processing sensor message:', err);
@@ -45,7 +51,7 @@ export const SensorDataView = () => {
     });
 
     return unsubscribe;
-  }, [selectedDevice, isConnected, subscribe]);
+  }, [isConnected, subscribe]);
 
   const loadDevices = async () => {
     setLoading(true);
@@ -72,28 +78,19 @@ export const SensorDataView = () => {
     setSensorReadings([]);
   };
 
-  const formatValue = (value: any, key: string): string => {
-    if (typeof value === 'number') {
-      if (key.toLowerCase().includes('temp')) {
-        return `${value.toFixed(2)}°C`;
-      } else if (key.toLowerCase().includes('humid')) {
-        return `${value.toFixed(1)}%`;
-      } else if (key.toLowerCase().includes('press')) {
-        return `${value.toFixed(2)} hPa`;
-      } else if (key.toLowerCase().includes('light')) {
-        return `${value.toFixed(0)} lux`;
-      }
-      return value.toFixed(2);
-    } else if (typeof value === 'boolean') {
-      return value ? 'Có' : 'Không';
-    }
-    return String(value);
-  };
+
 
   const getLatestValue = (key: string) => {
     if (sensorReadings.length === 0) return null;
     const latestReading = sensorReadings[0];
-    return latestReading[key as keyof SensorReading];
+
+    // Check if key exists in 'other' object first (where our ESP32 data lives)
+    if (latestReading.other && key in latestReading.other) {
+      return latestReading.other[key];
+    }
+
+    // Fallback to top-level properties
+    return (latestReading as any)[key];
   };
 
   return (
@@ -145,38 +142,37 @@ export const SensorDataView = () => {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="card p-6 bg-gradient-to-br from-orange-400 to-orange-500 text-white">
-                    <div className="text-sm font-semibold opacity-90">Nhiệt độ</div>
+                    <div className="text-sm font-semibold opacity-90">Mức rác</div>
                     <div className="text-3xl font-bold mt-2">
-                      {getLatestValue('temperature') === null
+                      {getLatestValue('trash') === undefined
                         ? 'N/A'
-                        : formatValue(getLatestValue('temperature'), 'temperature')}
+                        : `${getLatestValue('trash')}%`}
                     </div>
                   </div>
 
                   <div className="card p-6 bg-gradient-to-br from-blue-400 to-blue-500 text-white">
-                    <div className="text-sm font-semibold opacity-90">Độ ẩm</div>
+                    <div className="text-sm font-semibold opacity-90">Cảm biến Gas</div>
                     <div className="text-3xl font-bold mt-2">
-                      {getLatestValue('humidity') === null
+                      {getLatestValue('g') === undefined
                         ? 'N/A'
-                        : formatValue(getLatestValue('humidity'), 'humidity')}
+                        : String(getLatestValue('g'))}
                     </div>
                   </div>
-
-                  <div className="card p-6 bg-gradient-to-br from-purple-400 to-purple-500 text-white">
-                    <div className="text-sm font-semibold opacity-90">Áp suất</div>
-                    <div className="text-3xl font-bold mt-2">
-                      {getLatestValue('pressure') === null
+                    <div className="card p-6 bg-gradient-to-br from-purple-400 to-purple-500 text-white">
+                    <div className="text-sm font-semibold opacity-90">Vị trí GPS</div>
+                    <div className="text-lg font-bold mt-2">
+                      {getLatestValue('lat') === undefined
                         ? 'N/A'
-                        : formatValue(getLatestValue('pressure'), 'pressure')}
+                        : `${Number(getLatestValue('lat')).toFixed(4)}, ${Number(getLatestValue('lon')).toFixed(4)}`}
                     </div>
                   </div>
 
                   <div className="card p-6 bg-gradient-to-br from-yellow-400 to-yellow-500 text-white">
-                    <div className="text-sm font-semibold opacity-90">Ánh sáng</div>
+                    <div className="text-sm font-semibold opacity-90">Gia tốc (Z)</div>
                     <div className="text-3xl font-bold mt-2">
-                      {getLatestValue('light') === null
+                      {getLatestValue('az') === undefined
                         ? 'N/A'
-                        : formatValue(getLatestValue('light'), 'light')}
+                        : Number(getLatestValue('az')).toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -188,40 +184,30 @@ export const SensorDataView = () => {
                       <thead>
                         <tr className="bg-gray-200 text-gray-800">
                           <th className="px-4 py-2 text-left">Thời gian</th>
-                          <th className="px-4 py-2 text-right">Nhiệt độ</th>
-                          <th className="px-4 py-2 text-right">Độ ẩm</th>
-                          <th className="px-4 py-2 text-right">Áp suất</th>
-                          <th className="px-4 py-2 text-right">Ánh sáng</th>
-                          <th className="px-4 py-2 text-left">Dữ liệu khác</th>
+                          <th className="px-4 py-2 text-right">Mức rác</th>
+                          <th className="px-4 py-2 text-right">Gas</th>
+                          <th className="px-4 py-2 text-right">GPS (Lat, Lon)</th>
+                          <th className="px-4 py-2 text-right">Gia tốc (X, Y, Z)</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
-                        {sensorReadings.map((reading) => (
+                        {sensorReadings.map((reading: any) => (
                           <tr key={reading.id} className="hover:bg-gray-50">
                             <td className="px-4 py-3 text-gray-700">{reading.timestamp}</td>
                             <td className="px-4 py-3 text-right text-gray-700">
-                              {reading.temperature === undefined
-                                ? '-'
-                                : formatValue(reading.temperature, 'temperature')}
+                              {reading.other?.trash !== undefined ? `${reading.other.trash}%` : '-'}
                             </td>
                             <td className="px-4 py-3 text-right text-gray-700">
-                              {reading.humidity === undefined
-                                ? '-'
-                                : formatValue(reading.humidity, 'humidity')}
+                              {reading.other?.g !== undefined ? reading.other.g : '-'}
                             </td>
                             <td className="px-4 py-3 text-right text-gray-700">
-                              {reading.pressure === undefined
-                                ? '-'
-                                : formatValue(reading.pressure, 'pressure')}
+                              {reading.other?.lat !== undefined
+                                ? `${Number(reading.other.lat).toFixed(4)}, ${Number(reading.other.lon).toFixed(4)}`
+                                : '-'}
                             </td>
                             <td className="px-4 py-3 text-right text-gray-700">
-                              {reading.light === undefined
-                                ? '-'
-                                : formatValue(reading.light, 'light')}
-                            </td>
-                            <td className="px-4 py-3 text-gray-700 font-mono text-xs">
-                              {reading.other && Object.keys(reading.other).length > 0
-                                ? JSON.stringify(reading.other)
+                              {reading.other?.ax !== undefined
+                              ? `${Number(reading.other.ax).toFixed(2)}, ${Number(reading.other.ay).toFixed(2)}, ${Number(reading.other.az).toFixed(2)}`
                                 : '-'}
                             </td>
                           </tr>

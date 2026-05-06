@@ -8,6 +8,9 @@ export interface JwtResponse {
   accessToken: string;
   tokenType: string;
   username: string;
+  id?: string;
+  email?: string;
+  roles?: string[];
 }
 
 export interface User {
@@ -85,4 +88,27 @@ export interface PageResponse<T> {
   totalElements: number;
   currentPage: number;
   pageSize: number;
+}
+
+// Product & ESL Types
+export interface Product {
+  id?: number;
+  sku: string;
+  name: string;
+  price: number;
+  stockQuantity: number;
+  description?: string;
+  qrCodeUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface EslTag {
+  id?: number;
+  macAddress: string;
+  batteryLevel?: number;
+  isOnline?: boolean;
+  location?: string;
+  status?: string;
+  product?: Product;
 }

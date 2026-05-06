@@ -47,6 +47,13 @@ public class DataInitializer {
                                 .description("User role").build());
             log.info("Quyền User đã được khởi tạo.");
         }
+
+        if (!roleRepository.existsByName("ROLE_CASHIER")) {
+            roleRepository.save(Role.builder()
+                                .name("ROLE_CASHIER")
+                                .description("Cashier role").build());
+            log.info("Quyền Thu Ngân đã được khởi tạo.");
+        }
     }
 
     private void initAdminUser() {

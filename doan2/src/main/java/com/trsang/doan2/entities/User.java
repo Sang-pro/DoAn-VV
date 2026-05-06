@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.trsang.doan2.events.AuthProvider;
 
 @Data
 @Builder
@@ -88,9 +89,6 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Mqtt mqtt;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<SensorData> sensorData = new HashSet<>();
 
     // Ensure only a single @PrePersist method exists: consolidate initialization logic here.
     @PrePersist
@@ -108,4 +106,13 @@ public class User {
         }
     }
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "provider", nullable = false, length = 20)
+    private AuthProvider provider = AuthProvider.LOCAL;
+
+    @PreUpdate
+    protected void initBeforeUpdate() {
+        updatedAt = Instant.now();
+    }
 }

@@ -86,9 +86,9 @@ const UserManagement: React.FC = () => {
 
         return (
             <>
-                <div className="bg-white shadow-md rounded-lg p-4">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                <div className="glass-panel overflow-hidden border border-gray-100">
+                    <table className="min-w-full divide-y divide-indigo-100/50">
+                        <thead className="bg-indigo-50/50">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
@@ -127,8 +127,8 @@ const UserManagement: React.FC = () => {
     }
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">User Management</h1>
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 fade-in">
+            <h1 className="text-2xl font-bold text-gray-800">Cài đặt Người dùng</h1>
             
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center">

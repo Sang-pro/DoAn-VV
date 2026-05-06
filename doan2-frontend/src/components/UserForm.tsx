@@ -18,11 +18,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel }) => {
     });
 
     const handleFormSubmit = (data: UserFormData) => {
-        if (user) {
-            // When updating, we don't send username, email, or password.
-            // react-hook-form doesn't include disabled fields, so we just pass the data.
-            onSubmit(data);
-        } 
+        // react-hook-form doesn't include disabled fields, so we just pass the data.
+        onSubmit(data);
     };
 
     return (
@@ -63,6 +60,20 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel }) => {
                             {errors.password && <p className="text-red-500 text-xs italic">{errors.password.message}</p>}
                         </div>
                     )}
+                    <div className="mb-4">
+                        <label htmlFor="roles" className="block text-gray-700 text-sm font-bold mb-2">Roles</label>
+                        <select
+                            id="roles"
+                            multiple
+                            {...register('roles')}
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        >
+                            <option value="ROLE_USER">USER</option>
+                            <option value="ROLE_CASHIER">CASHIER</option>
+                            <option value="ROLE_ADMIN">ADMIN</option>
+                        </select>
+                        <p className="text-gray-500 text-xs italic mt-1">Giữ phím Ctrl (hoặc Cmd) để chọn nhiều quyền.</p>
+                    </div>
                     <div className="flex items-center justify-end">
                         <button type="button" onClick={onCancel} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
                             Cancel
