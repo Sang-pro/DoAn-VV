@@ -38,7 +38,14 @@ const ProductManagement: React.FC = () => {
 
     const handleEdit = (product: Product) => {
         setSelectedProduct(product);
-        setFormData(product);
+        setFormData({
+            sku: product.sku,
+            name: product.name,
+            price: product.price,
+            stockQuantity: product.stockQuantity,
+            description: product.description,
+            qrCodeUrl: product.qrCodeUrl
+        });
         setIsFormOpen(true);
     };
 

@@ -54,12 +54,20 @@ import com.trsang.doan2.services.interfaces.IAuthService;
 import com.trsang.doan2.services.interfaces.IRefreshTokenService;
 import com.trsang.doan2.services.interfaces.ITokenService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import com.trsang.doan2.services.interfaces.IOtpService;
+import com.trsang.doan2.services.interfaces.IEmailService;
+import com.trsang.doan2.entities.Otp;
+
 @Slf4j
 @Service
+//@RequiredArgsConstructor
 public class AuthService implements IAuthService {
+    private final IOtpService otpService;
+    private final IEmailService emailService;
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
     private final ITokenService tokenService;
@@ -72,6 +80,8 @@ public class AuthService implements IAuthService {
     private final String facebookClientSecret;
 
     public AuthService(
+            IOtpService otpService,
+            IEmailService emailService,
             IUserRepository userRepository, 
             IRoleRepository roleRepository, 
             ITokenService tokenService,
@@ -94,6 +104,8 @@ public class AuthService implements IAuthService {
         this.webClient = webClientBuilder.baseUrl("https://graph.facebook.com").build();
         this.facebookClientId = facebookClientId;
         this.facebookClientSecret = facebookClientSecret;
+        this.otpService = otpService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -434,36 +446,10 @@ public class AuthService implements IAuthService {
                 .phoneNumber(registerRequest.getPhoneNumber())
                 .build();
 
-        Set<String> strRoles = registerRequest.getRoles();
         Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null || strRoles.isEmpty()) {
-            Role userRole = roleRepository.findByName("ROLE_USER")
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } 
-        else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(adminRole);
-                        break;
-
-                    case "mod":
-                        Role modRole = roleRepository.findByName("ROLE_MODERATOR")
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(modRole);
-                        break;
-                
-                    default:
-                        Role userRole = roleRepository.findByName("ROLE_USER")
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
-        }
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("Error: Default role 'ROLE_USER' not found."));
+        roles.add(userRole);
         user.setRoles(roles);
         userRepository.save(user);
         log.info("User registered successfully: {}", user.getUsername());
@@ -523,4 +509,51 @@ public class AuthService implements IAuthService {
         return userRepository.existsByUsername(username);
     }
 
+    @Override
+    public MessageResponse forgotPassword(String email) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return MessageResponse.builder().message("User with this email not found").success(false).build();
+        }
+
+        Otp otp = otpService.generateOtp(user);
+        emailService.sendOtpEmail(user.getEmail(), otp.getOtpCode());
+
+        return MessageResponse.builder().message("OTP has been sent to your email").success(true).build();
+    }
+
+    @Override
+    public MessageResponse verifyOtp(String email, String otpCode) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return MessageResponse.builder().message("User not found").success(false).build();
+        }
+
+        String resetToken = otpService.verifyOtp(user, otpCode);
+        if (resetToken != null) {
+            return MessageResponse.builder().message("OTP verified successfully").success(true).token(resetToken).build();
+        } else {
+            return MessageResponse.builder().message("Invalid or expired OTP").success(false).build();
+        }
+    }
+
+    @Override
+    public MessageResponse resetPassword(String email, String resetToken, String newPassword) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return MessageResponse.builder().message("User not found").success(false).build();
+        }
+
+        if (!otpService.validateResetToken(user, resetToken)) {
+            return MessageResponse.builder().message("Invalid reset token").success(false).build();
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Optionally, we could invalidate the resetToken here by deleting the OTP record or clearing the token.
+        // For simplicity, we just save the new password.
+
+        return MessageResponse.builder().message("Password reset successfully").success(true).build();
+    }
 }

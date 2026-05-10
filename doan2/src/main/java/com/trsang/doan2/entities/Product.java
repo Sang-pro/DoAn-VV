@@ -3,6 +3,7 @@ package com.trsang.doan2.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "products")
@@ -37,9 +38,11 @@ public class Product {
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
     private EslTag eslTag;
     
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name = "created_at", updatable = false, nullable = false)
     private Instant createdAt;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 

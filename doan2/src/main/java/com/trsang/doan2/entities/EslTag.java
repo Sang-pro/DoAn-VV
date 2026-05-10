@@ -3,7 +3,7 @@ package com.trsang.doan2.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "esl_tags")
@@ -36,6 +36,7 @@ public class EslTag {
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties("eslTag")
     private Product product;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name = "last_seen")
     private Instant lastSeen;
 }

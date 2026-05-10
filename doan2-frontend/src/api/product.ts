@@ -3,7 +3,8 @@ import apiClient from './client';
 
 export const getAllProducts = async (): Promise<Product[]> => {
     const response = await apiClient.get('/products');
-    return response.data;
+    // If the backend returns a paginated response, the array is in response.data.content
+    return response.data.content ? response.data.content : response.data;
 };
 
 export const createProduct = async (productData: Partial<Product>): Promise<Product> => {

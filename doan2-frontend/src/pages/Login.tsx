@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useGoogleLogin } from '@react-oauth/google';
 import { Mail, Lock } from 'lucide-react';
@@ -22,6 +22,8 @@ const GoogleIcon = () => (
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const stateMessage = location.state?.message;
   const { login, googleLogin, facebookLogin, isLoading, error } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
@@ -120,11 +122,20 @@ const Login: React.FC = () => {
               </label>
             </div>
             <div className="text-sm">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link to="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Quên mật khẩu?
-              </a>
+              </Link>
             </div>
           </div>
+
+          {stateMessage && (
+            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg flex items-center">
+              <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              {stateMessage}
+            </div>
+          )}
 
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg flex items-center">

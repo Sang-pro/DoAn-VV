@@ -12,4 +12,10 @@ import lombok.NoArgsConstructor;
 public class MessageResponse {
     private String message;
     private boolean success;
+    private String token;
+
+    public MessageResponse(String message, boolean success) {
+        this.message = message;
+        this.success = success;
+    }
 }

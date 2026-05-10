@@ -1,7 +1,5 @@
 package com.trsang.doan2.dtos.requests;
 
-import java.util.Set;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -31,5 +29,4 @@ public class RegisterRequest {
     @Pattern(regexp = "^$|^\\+?[0-9]{10,15}$", message = "Phone number is not valid")
     private String phoneNumber;
 
-    private Set<String> roles;
 }

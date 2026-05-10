@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trsang.doan2.dtos.requests.ForgotPasswordRequest;
 import com.trsang.doan2.dtos.requests.LoginRequest;
 import com.trsang.doan2.dtos.requests.LogoutRequest;
 import com.trsang.doan2.dtos.requests.RefreshTokenRequest;
 import com.trsang.doan2.dtos.requests.RegisterRequest;
+import com.trsang.doan2.dtos.requests.ResetPasswordRequest;
 import com.trsang.doan2.dtos.requests.RevokeTokenRequest;
 import com.trsang.doan2.dtos.requests.UserOauthRequest;
+import com.trsang.doan2.dtos.requests.VerifyOtpRequest;
 import com.trsang.doan2.dtos.responses.JwtResponse;
 import com.trsang.doan2.dtos.responses.MessageResponse;
 import com.trsang.doan2.events.AuthProvider;
@@ -330,6 +333,39 @@ public class AuthController {
                     getClientIp(httpRequest)
             ));
             throw e;
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request password reset via OTP")
+    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        MessageResponse response = authService.forgotPassword(request.getEmail());
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    @Operation(summary = "Verify OTP for password reset")
+    public ResponseEntity<MessageResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        MessageResponse response = authService.verifyOtp(request.getEmail(), request.getOtp());
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password using token")
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        MessageResponse response = authService.resetPassword(request.getEmail(), request.getResetToken(), request.getNewPassword());
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().body(response);
         }
     }
 

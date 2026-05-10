@@ -22,4 +22,13 @@ export const authAPI = {
 
   facebookLogin: (clientId: string, token: string) =>
     apiClient.post<JwtResponse>('/auth/facebook', { clientId, token, provider: 'FACEBOOK' }),
+
+  forgotPassword: (email: string) =>
+    apiClient.post<MessageResponse>('/auth/forgot-password', { email }),
+
+  verifyOtp: (email: string, otp: string) =>
+    apiClient.post<MessageResponse>('/auth/verify-otp', { email, otp }),
+
+  resetPassword: (email: string, resetToken: string, newPassword: string) =>
+    apiClient.post<MessageResponse>('/auth/reset-password', { email, resetToken, newPassword }),
 };

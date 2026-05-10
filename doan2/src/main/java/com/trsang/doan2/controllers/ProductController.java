@@ -10,7 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.text.Normalizer;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/api/products")
@@ -22,10 +29,11 @@ public class ProductController {
     private final IProductRepository productRepository;
     private final IEslTagRepository eslTagRepository;
     private final EslMqttGateway eslMqttGateway;
+    private final ObjectMapper objectMapper;
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public Page<Product> getAllProducts(@PageableDefault(size = 20) Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
     @PostMapping
@@ -49,13 +57,26 @@ public class ProductController {
             // If product is linked to an ESL tag, push MQTT update
             // ESL tag has a reference to product, so we look it up
             eslTagRepository.findByProductId(updatedProduct.getId()).ifPresent(tag -> {
-                String payload = String.format("{\"price\": %.2f, \"stock\": %d, \"qr\": \"%s\"}", 
-                        updatedProduct.getPrice(), 
-                        updatedProduct.getStockQuantity(), 
-                        updatedProduct.getQrCodeUrl() != null ? updatedProduct.getQrCodeUrl() : "");
-                
-                log.info("Publishing update to ESL Tag {}: {}", tag.getMacAddress(), payload);
-                eslMqttGateway.sendToMqtt("esl/update/" + tag.getMacAddress(), payload);
+                // Tự động loại bỏ dấu Tiếng Việt (Ví dụ: "Mỳ tôm" -> "My tom")
+                String temp = Normalizer.normalize(updatedProduct.getName(), Normalizer.Form.NFD);
+                String normalizedName = temp.replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                                            .replaceAll("Đ", "D").replaceAll("đ", "d");
+                                            
+                // Định dạng giá tiền (Ví dụ: 25000 -> 25,000)
+                String formattedPrice = String.format("%,.0f", updatedProduct.getPrice());
+
+                try {
+                    Map<String, String> payloadMap = new HashMap<>();
+                    payloadMap.put("action", "update");
+                    payloadMap.put("name", normalizedName);
+                    payloadMap.put("price", formattedPrice);
+                    String payload = objectMapper.writeValueAsString(payloadMap);
+                    
+                    log.info("Publishing update to ESL Tag {}: {}", tag.getMacAddress(), payload);
+                    eslMqttGateway.sendToMqtt("esl/update/" + tag.getMacAddress(), payload);
+                } catch (Exception e) {
+                    log.error("Error creating MQTT payload for ESL Tag {}", tag.getMacAddress(), e);
+                }
             });
 
             return ResponseEntity.ok(updatedProduct);

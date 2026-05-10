@@ -75,7 +75,9 @@ export const Cashier: React.FC = () => {
       setIsSaving(true);
       setSaveSuccess(false);
       const updated = await updateProduct(scannedProduct.id, {
-        ...scannedProduct,
+        sku: scannedProduct.sku,
+        description: scannedProduct.description,
+        qrCodeUrl: scannedProduct.qrCodeUrl,
         name: editForm.name,
         price: editForm.price,
         stockQuantity: editForm.stockQuantity,

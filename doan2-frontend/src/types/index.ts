@@ -79,6 +79,7 @@ export interface SensorData {
 export interface MessageResponse {
   message: string;
   success: boolean;
+  token?: string;
 }
 
 // Pagination

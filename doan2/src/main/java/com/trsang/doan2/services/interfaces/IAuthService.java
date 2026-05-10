@@ -19,4 +19,8 @@ public interface IAuthService {
 
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
+
+    MessageResponse forgotPassword(String email);
+    MessageResponse verifyOtp(String email, String otp);
+    MessageResponse resetPassword(String email, String resetToken, String newPassword);
 }
