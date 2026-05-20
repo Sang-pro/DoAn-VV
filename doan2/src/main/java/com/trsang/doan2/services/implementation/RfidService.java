@@ -2,10 +2,10 @@ package com.trsang.doan2.services.implementation;
 
 import com.trsang.doan2.dtos.requests.RfidScanRequest;
 import com.trsang.doan2.entities.EslTag;
-import com.trsang.doan2.entities.Product;
+import com.trsang.doan2.entities.Book;
 import com.trsang.doan2.entities.RfidTag;
 import com.trsang.doan2.repositories.IEslTagRepository;
-import com.trsang.doan2.repositories.IProductRepository;
+import com.trsang.doan2.repositories.IBookRepository;
 import com.trsang.doan2.repositories.IRfidTagRepository;
 import com.trsang.doan2.services.interfaces.IRfidService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class RfidService implements IRfidService {
 
     private final IRfidTagRepository rfidTagRepository;
     private final IEslTagRepository eslTagRepository;
-    private final IProductRepository productRepository;
+    private final IBookRepository bookRepository;
 
     @Override
     @Transactional
@@ -41,30 +41,30 @@ public class RfidService implements IRfidService {
         rfidTag.setLastScannedAt(Instant.now());
         rfidTagRepository.save(rfidTag);
 
-        Product scannedProduct = rfidTag.getProduct();
+        Book scannedBook = rfidTag.getBook();
 
         // Find the shelf (EslTag) by location
         Optional<EslTag> eslTagOpt = eslTagRepository.findByLocation(request.getLocation());
         if (eslTagOpt.isPresent()) {
             EslTag eslTag = eslTagOpt.get();
-            // Optional: If there was a previous product on this shelf, maybe its status should change?
-            eslTag.setProduct(scannedProduct);
+            // Optional: If there was a previous book on this shelf, maybe its status should change?
+            eslTag.setBook(scannedBook);
             eslTag.setLastSeen(Instant.now());
             eslTagRepository.save(eslTag);
-            log.info("Updated Shelf {} with Product ID {}", request.getLocation(), scannedProduct.getId());
+            log.info("Updated Shelf {} with Book ID {}", request.getLocation(), scannedBook.getId());
         } else {
             log.warn("Shelf location {} not found in EslTag database.", request.getLocation());
         }
     }
 
     @Override
-    public RfidTag registerRfidTag(String epc, Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+    public RfidTag registerRfidTag(String epc, Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
 
         RfidTag rfidTag = RfidTag.builder()
                 .epc(epc)
-                .product(product)
+                .book(book)
                 .build();
         return rfidTagRepository.save(rfidTag);
     }

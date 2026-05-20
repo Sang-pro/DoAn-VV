@@ -91,15 +91,15 @@ export interface PageResponse<T> {
   pageSize: number;
 }
 
-// Product & ESL Types
-export interface Product {
+// Book & ESL Types
+export interface Book {
   id?: number;
-  sku: string;
-  name: string;
-  price: number;
-  stockQuantity: number;
-  description?: string;
-  qrCodeUrl?: string;
+  isbn: string;
+  title: string;
+  author: string;
+  availableCopies: number;
+  summary?: string;
+  coverImageUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -111,5 +111,5 @@ export interface EslTag {
   isOnline?: boolean;
   location?: string;
   status?: string;
-  product?: Product;
+  book?: Book;
 }

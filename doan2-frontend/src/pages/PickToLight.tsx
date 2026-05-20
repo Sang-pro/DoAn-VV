@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { getAllProducts } from '../api/product';
+import { getAllBooks } from '../api/book';
 import { pickToLight } from '../api/esltag';
-import { Product } from '../types';
+import { Book } from '../types';
 
 const PickToLight: React.FC = () => {
-    const [products, setProducts] = useState<Product[]>([]);
+    const [books, setBooks] = useState<Book[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchProducts = async () => {
-            const data = await getAllProducts();
-            setProducts(data || []);
+        const fetchBooks = async () => {
+            const data = await getAllBooks();
+            setBooks(data || []);
         };
-        fetchProducts();
+        fetchBooks();
     }, []);
 
-    const handleFind = async (productId: number) => {
+    const handleFind = async (bookId: number) => {
         try {
             setStatusMessage(`Sending light signal via MQTT...`);
-            const msg = await pickToLight(productId);
+            const msg = await pickToLight(bookId);
             setStatusMessage(`✅ ${msg}`);
             setTimeout(() => setStatusMessage(null), 3000);
         } catch (err: any) {
@@ -27,19 +27,19 @@ const PickToLight: React.FC = () => {
         }
     };
 
-    const filteredProducts = products.filter(p => 
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        p.sku.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredBooks = books.filter(b => 
+        b.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        b.isbn.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Pick To Light - Warehouse Find</h1>
-            <p className="mb-6 text-gray-600">Search for a product below and click "Find" to trigger the blinking LED on the assigned Electronic Shelf Label.</p>
+            <h1 className="text-2xl font-bold mb-4">Pick To Light - Tìm Sách Nhanh</h1>
+            <p className="mb-6 text-gray-600">Tìm kiếm sách và bấm "BẬT ĐÈN" để kích hoạt nhấp nháy đèn LED trên Nhãn kệ điện tử.</p>
             
             <input 
                 type="text" 
-                placeholder="Search by name or sku..." 
+                placeholder="Tìm theo tên hoặc ISBN..." 
                 className="border p-2 w-full max-w-md mb-4 rounded"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -52,22 +52,21 @@ const PickToLight: React.FC = () => {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                {filteredProducts.map(p => (
-                    <div key={p.id} className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition">
-                        <h3 className="text-xl font-bold">{p.name}</h3>
-                        <p className="text-sm text-gray-500">SKU: {p.sku}</p>
-                        <p className="text-sm">Stock: <span className="font-bold">{p.stockQuantity}</span></p>
-                        <p className="text-sm">Location mapping assumes ESL is linked.</p>
+                {filteredBooks.map(b => (
+                    <div key={b.id} className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition">
+                        <h3 className="text-xl font-bold">{b.title}</h3>
+                        <p className="text-sm text-gray-500">ISBN: {b.isbn}</p>
+                        <p className="text-sm">Có sẵn: <span className="font-bold">{b.availableCopies}</span> cuốn</p>
                         <button 
                             className="w-full mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition"
-                            onClick={() => p.id && handleFind(p.id)}
+                            onClick={() => b.id && handleFind(b.id)}
                         >
-                            FIND THIS ITEM (BLINK)
+                            BẬT ĐÈN (TÌM SÁCH NÀY)
                         </button>
                     </div>
                 ))}
-                {filteredProducts.length === 0 && (
-                    <div className="text-gray-500 col-span-full">No products found matching your search.</div>
+                {filteredBooks.length === 0 && (
+                    <div className="text-gray-500 col-span-full">Không tìm thấy sách phù hợp.</div>
                 )}
             </div>
         </div>

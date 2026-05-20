@@ -1,15 +1,16 @@
-# Dự án DoAn2 - Hệ thống Giám sát Dữ liệu Cảm biến
+# Dự án DoAn2 - Hệ thống Quản lý Thư viện Thông minh (Smart Library Management System)
 
-Đây là một dự án full-stack bao gồm một backend Spring Boot và một frontend React, được thiết kế để giám sát dữ liệu từ các cảm biến trong thời gian thực thông qua MQTT và WebSockets.
+Đây là một hệ thống full-stack đa nền tảng bao gồm backend Spring Boot, frontend React và ứng dụng di động Flutter. Dự án cung cấp giải pháp quản lý thư viện hiện đại, tích hợp các công nghệ phần cứng IoT (ESL, RFID) và Trí tuệ Nhân tạo (AI) để tối ưu hóa quá trình vận hành.
 
 ## Tính năng chính
 
-- **Xác thực người dùng:** Đăng ký, đăng nhập, và quản lý phiên làm việc sử dụng JWT (JSON Web Tokens).
-- **Quản lý người dùng:** Chức năng cho quản trị viên (admin) để xem và quản lý trạng thái người dùng.
-- **Tích hợp MQTT:** Cho phép các thiết bị (sensors) gửi dữ liệu đến một MQTT broker.
-- **Hiển thị thời gian thực:** Dữ liệu từ MQTT được đẩy đến frontend qua WebSockets để hiển thị trực tiếp mà không cần tải lại trang.
-- **Giao diện người dùng:** Giao diện được xây dựng bằng React và Tailwind CSS để hiển thị dữ liệu cảm biến và quản lý hệ thống.
-- **Bảo mật:** Sử dụng Spring Security để phân quyền và bảo vệ các API endpoints.
+- **Quản lý Sản phẩm & Sách:** Quản lý thông tin sách, theo dõi số lượng tồn kho, vị trí và thông tin chi tiết.
+- **Tích hợp IoT & Phần cứng:** Hỗ trợ kết nối và tự động cập nhật Nhãn kệ điện tử (ESL - Electronic Shelf Labels) và quét thẻ RFID thông qua giao thức MQTT.
+- **Trí tuệ Nhân tạo (AI):** Tích hợp chatbot AI thông qua nền tảng Ollama để hỗ trợ tư vấn, trả lời câu hỏi và tương tác thông minh với người dùng.
+- **Phân quyền Đa người dùng:** Hệ thống phân quyền chặt chẽ (Admin, Cashier, User). Hỗ trợ xác thực qua OAuth2 (Google, Facebook) và khôi phục mật khẩu qua OTP.
+- **Cập nhật Thời gian thực:** Đồng bộ trạng thái phần cứng (pin ESL, tín hiệu RFID) và đẩy dữ liệu lên frontend qua WebSockets.
+- **Đa nền tảng:** Giao diện quản trị trên Web (React, Tailwind CSS) và ứng dụng dành cho người dùng trên thiết bị di động (Flutter).
+- **Bảo mật:** Bảo vệ API toàn diện với Spring Security và JWT (JSON Web Tokens).
 
 ## Công nghệ sử dụng
 

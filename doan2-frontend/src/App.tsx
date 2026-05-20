@@ -10,11 +10,11 @@ import { SensorDataView } from './pages/SensorDataView';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 import UserManagement from './pages/UserManagement';
-import ProductManagement from './pages/ProductManagement';
+import BookCatalog from './pages/BookCatalog';
 import EslManagement from './pages/EslManagement';
 import PickToLight from './pages/PickToLight';
 import ShelfMap from './pages/ShelfMap';
-import Cashier from './pages/Cashier';
+import Librarian from './pages/Librarian';
 import AIChatbot from './components/AIChatbot';
 import MainLayout from './components/MainLayout';
 import './App.css';
@@ -56,9 +56,9 @@ function App() {
               <UserManagement />
             </RoleProtectedRoute>
           } />
-          <Route path="/products" element={
+          <Route path="/books" element={
             <RoleProtectedRoute allowedRoles={['ROLE_ADMIN']}>
-              <ProductManagement />
+              <BookCatalog />
             </RoleProtectedRoute>
           } />
           <Route path="/esl" element={
@@ -67,13 +67,13 @@ function App() {
             </RoleProtectedRoute>
           } />
           <Route path="/shelf-map" element={
-            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_USER', 'ROLE_CASHIER']}>
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_USER', 'ROLE_LIBRARIAN']}>
               <ShelfMap />
             </RoleProtectedRoute>
           } />
-          <Route path="/cashier" element={
-            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_CASHIER']}>
-              <Cashier />
+          <Route path="/librarian" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_LIBRARIAN']}>
+              <Librarian />
             </RoleProtectedRoute>
           } />
         </Route>

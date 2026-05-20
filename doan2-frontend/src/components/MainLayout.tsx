@@ -6,7 +6,8 @@ import {
   Settings, 
   Users, 
   Activity, 
-  Package, 
+  BookOpen, 
+  Library, 
   Tag, 
   Flashlight,
   LogOut,
@@ -16,7 +17,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  ShoppingCart
+  UserCheck
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -33,15 +34,15 @@ export const MainLayout: React.FC = () => {
   };
 
   const allNavItems = [
-    { path: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard, roles: ['ROLE_ADMIN', 'ROLE_CASHIER', 'ROLE_USER'] },
+    { path: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard, roles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN', 'ROLE_USER'] },
     { path: '/pick-to-light', label: 'Pick-to-Light', icon: Flashlight, roles: ['ROLE_ADMIN', 'ROLE_USER'] },
-    { path: '/cashier', label: 'Thu ngân', icon: ShoppingCart, roles: ['ROLE_ADMIN', 'ROLE_CASHIER'] },
-    { path: '/products', label: 'Sản phẩm', icon: Package, roles: ['ROLE_ADMIN'] },
+    { path: '/librarian', label: 'Nghiệp vụ Thủ thư', icon: UserCheck, roles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN'] },
+    { path: '/books', label: 'Thư viện Sách', icon: Library, roles: ['ROLE_ADMIN'] },
     { path: '/users', label: 'Người dùng', icon: Users, roles: ['ROLE_ADMIN'] },
     { path: '/mqtt', label: 'Quản lý MQTT', icon: Settings, roles: ['ROLE_ADMIN'] },
     { path: '/sensor-data', label: 'Dữ liệu Cảm biến', icon: Activity, roles: ['ROLE_ADMIN'] },
     { path: '/esl', label: 'Quản lý ESL', icon: Tag, roles: ['ROLE_ADMIN'] },
-    { path: '/shelf-map', label: 'Bản đồ Kệ hàng', icon: Package, roles: ['ROLE_ADMIN', 'ROLE_CASHIER', 'ROLE_USER'] },
+    { path: '/shelf-map', label: 'Bản đồ Kệ sách', icon: BookOpen, roles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN', 'ROLE_USER'] },
   ];
 
   const navItems = allNavItems.filter(item => hasRole(item.roles));

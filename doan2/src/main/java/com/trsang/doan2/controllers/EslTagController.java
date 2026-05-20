@@ -2,7 +2,7 @@ package com.trsang.doan2.controllers;
 
 import com.trsang.doan2.entities.EslTag;
 import com.trsang.doan2.repositories.IEslTagRepository;
-import com.trsang.doan2.repositories.IProductRepository;
+import com.trsang.doan2.repositories.IBookRepository;
 import com.trsang.doan2.services.interfaces.EslMqttGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.List;
 public class EslTagController {
 
     private final IEslTagRepository eslTagRepository;
-    private final IProductRepository productRepository;
+    private final IBookRepository bookRepository;
     private final EslMqttGateway eslMqttGateway;
 
     @GetMapping
@@ -45,10 +45,10 @@ public class EslTagController {
             tag.setIsOnline(tagDetails.getIsOnline());
             tag.setStatus(tagDetails.getStatus());
 
-            if (tagDetails.getProduct() != null && tagDetails.getProduct().getId() != null) {
-                productRepository.findById(tagDetails.getProduct().getId()).ifPresent(tag::setProduct);
+            if (tagDetails.getBook() != null && tagDetails.getBook().getId() != null) {
+                bookRepository.findById(tagDetails.getBook().getId()).ifPresent(tag::setBook);
             } else {
-                tag.setProduct(null);
+                tag.setBook(null);
             }
 
             EslTag updated = eslTagRepository.save(tag);
@@ -64,14 +64,14 @@ public class EslTagController {
     }
 
     // "Pick-to-Light" Feature
-    @PostMapping("/find/{productId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<String> pickToLight(@PathVariable Long productId) {
-        return eslTagRepository.findByProductId(productId).map(tag -> {
+    @PostMapping("/find/{bookId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'LIBRARIAN')")
+    public ResponseEntity<String> pickToLight(@PathVariable Long bookId) {
+        return eslTagRepository.findByBookId(bookId).map(tag -> {
             String payload = "{\"action\": \"blink\"}";
             eslMqttGateway.sendToMqtt("esl/find/" + tag.getMacAddress(), payload);
             log.info("Triggered Pick-to-light for ESL Tag {}", tag.getMacAddress());
             return ResponseEntity.ok("Pick-to-light activated for " + tag.getMacAddress());
-        }).orElseGet(() -> ResponseEntity.status(404).body("No assigned ESL tag found for this product."));
+        }).orElseGet(() -> ResponseEntity.status(404).body("No assigned ESL tag found for this book."));
     }
 }

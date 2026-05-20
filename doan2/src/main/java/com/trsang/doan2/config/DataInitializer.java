@@ -48,11 +48,11 @@ public class DataInitializer {
             log.info("Quyền User đã được khởi tạo.");
         }
 
-        if (!roleRepository.existsByName("ROLE_CASHIER")) {
+        if (!roleRepository.existsByName("ROLE_LIBRARIAN")) {
             roleRepository.save(Role.builder()
-                                .name("ROLE_CASHIER")
-                                .description("Cashier role").build());
-            log.info("Quyền Thu Ngân đã được khởi tạo.");
+                                .name("ROLE_LIBRARIAN")
+                                .description("Librarian role").build());
+            log.info("Quyền Thủ thư đã được khởi tạo.");
         }
     }
 

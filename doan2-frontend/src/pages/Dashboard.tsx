@@ -129,14 +129,14 @@ const Dashboard: React.FC = () => {
               <span className="text-gray-400 group-hover:text-indigo-500 transition-colors">→</span>
             </button>
             <button
-              onClick={() => navigate('/products')}
+              onClick={() => navigate('/books')}
               className="w-full flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white hover:border-indigo-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  📦
+                  📚
                 </div>
-                <span className="font-semibold text-gray-700">Quản lý Sản phẩm</span>
+                <span className="font-semibold text-gray-700">Quản lý Thư viện Sách</span>
               </div>
               <span className="text-gray-400 group-hover:text-indigo-500 transition-colors">→</span>
             </button>

@@ -64,7 +64,7 @@ import com.trsang.doan2.entities.Otp;
 
 @Slf4j
 @Service
-//@RequiredArgsConstructor
+// @RequiredArgsConstructor
 public class AuthService implements IAuthService {
     private final IOtpService otpService;
     private final IEmailService emailService;
@@ -82,8 +82,8 @@ public class AuthService implements IAuthService {
     public AuthService(
             IOtpService otpService,
             IEmailService emailService,
-            IUserRepository userRepository, 
-            IRoleRepository roleRepository, 
+            IUserRepository userRepository,
+            IRoleRepository roleRepository,
             ITokenService tokenService,
             IRefreshTokenService refreshTokenService,
             PasswordEncoder passwordEncoder,
@@ -114,7 +114,7 @@ public class AuthService implements IAuthService {
         try {
             // Authenticate using injected AuthenticationManager
             AuthenticationManager authenticationManager = authenticationManagerProvider.getObject();
-            
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
@@ -125,11 +125,12 @@ public class AuthService implements IAuthService {
 
             // Generate JWT access token
             String accessToken = tokenService.generateAccessToken(userDetails);
-            
+
             // Get user for refresh token
             User user = userRepository.findByUsername(userDetails.getUsername())
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userDetails.getUsername()));
-            
+                    .orElseThrow(() -> new UsernameNotFoundException(
+                            "User not found with username: " + userDetails.getUsername()));
+
             // Create refresh token with retry mechanism
             RefreshToken refreshToken;
             try {
@@ -191,7 +192,8 @@ public class AuthService implements IAuthService {
                         .orElseGet(() -> createNewFacebookUser(facebookUser));
             }
 
-            default -> throw new IllegalArgumentException("Unsupported authentication provider: " + loginRequest.getProvider());
+            default -> throw new IllegalArgumentException(
+                    "Unsupported authentication provider: " + loginRequest.getProvider());
         };
         log.info("User authenticated: {} (ID: {})", user.getUsername(), user.getId());
 
@@ -214,10 +216,12 @@ public class AuthService implements IAuthService {
         String accessToken = tokenService.generateAccessToken(userDetails);
         RefreshToken refreshToken;
         try {
-            refreshToken = refreshTokenService.createRefreshToken(userRepository.findByUsername(userDetails.getUsername()).orElseThrow());
+            refreshToken = refreshTokenService
+                    .createRefreshToken(userRepository.findByUsername(userDetails.getUsername()).orElseThrow());
         } catch (DataIntegrityViolationException ex) {
             log.warn("Constraint violation creating refresh token, checking for existing tokens");
-            List<RefreshToken> activeTokens = refreshTokenService.findActiveTokensByUser(userRepository.findByUsername(userDetails.getUsername()).orElseThrow());
+            List<RefreshToken> activeTokens = refreshTokenService
+                    .findActiveTokensByUser(userRepository.findByUsername(userDetails.getUsername()).orElseThrow());
             if (activeTokens.isEmpty()) {
                 throw new RuntimeException("Could not create or find valid refresh token");
             }
@@ -246,7 +250,8 @@ public class AuthService implements IAuthService {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setBearerAuth(token);
                 HttpEntity<String> entity = new HttpEntity<>(headers);
-                ResponseEntity<Map> response = restTemplate.exchange("https://www.googleapis.com/oauth2/v3/userinfo", HttpMethod.GET, entity, Map.class);
+                ResponseEntity<Map> response = restTemplate.exchange("https://www.googleapis.com/oauth2/v3/userinfo",
+                        HttpMethod.GET, entity, Map.class);
                 if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                     Map<String, Object> map = response.getBody();
                     Payload payload = new Payload();
@@ -287,9 +292,11 @@ public class AuthService implements IAuthService {
                 .onErrorResume(e -> Mono.empty()) // Handle errors by returning an empty Mono
                 .block();
 
-        if (debugResponse == null || !debugResponse.getData().isValid() || !debugResponse.getData().getAppId().equals(facebookClientId)) {
-            log.warn("Invalid Facebook token or token does not belong to our app. App ID from token: {}", 
-                     debugResponse != null && debugResponse.getData() != null ? debugResponse.getData().getAppId() : "N/A");
+        if (debugResponse == null || !debugResponse.getData().isValid()
+                || !debugResponse.getData().getAppId().equals(facebookClientId)) {
+            log.warn("Invalid Facebook token or token does not belong to our app. App ID from token: {}",
+                    debugResponse != null && debugResponse.getData() != null ? debugResponse.getData().getAppId()
+                            : "N/A");
             return null;
         }
 
@@ -358,7 +365,8 @@ public class AuthService implements IAuthService {
                 .orElseThrow(() -> new RuntimeException("Error: Default role 'ROLE_USER' not found."));
 
         String avatarUrl = (facebookUser.getPicture() != null && facebookUser.getPicture().getData() != null)
-                ? facebookUser.getPicture().getData().getUrl() : null;
+                ? facebookUser.getPicture().getData().getUrl()
+                : null;
 
         User newUser = User.builder()
                 .email(email)
@@ -379,16 +387,16 @@ public class AuthService implements IAuthService {
     @Override
     public JwtResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
         String requestRefreshToken = refreshTokenRequest.getRefreshToken();
-        
+
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(refreshToken -> {
                     User user = refreshToken.getUser();
                     UserDetailsImpl userDetails = UserDetailsImpl.build(user);
-                    
+
                     // Generate new access token
                     String accessToken = tokenService.generateAccessToken(userDetails);
-                    
+
                     // Generate new refresh token with retry mechanism
                     RefreshToken newRefreshToken;
                     try {
@@ -397,19 +405,19 @@ public class AuthService implements IAuthService {
                         // If we hit a constraint violation, try to find an active token
                         List<RefreshToken> activeTokens = refreshTokenService.findActiveTokensByUser(user);
                         if (activeTokens.isEmpty()) {
-                            throw new RefreshTokenException(requestRefreshToken, 
-                                "Could not create new refresh token due to constraint violation");
+                            throw new RefreshTokenException(requestRefreshToken,
+                                    "Could not create new refresh token due to constraint violation");
                         }
                         newRefreshToken = activeTokens.get(0);
                     }
-                    
+
                     // Mark old token as used and specify which token replaced it
                     refreshTokenService.useToken(refreshToken, newRefreshToken.getToken());
 
                     List<String> roles = userDetails.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
                             .toList();
-                    
+
                     return JwtResponse.builder()
                             .accessToken(accessToken)
                             .refreshToken(newRefreshToken.getToken())
@@ -419,7 +427,8 @@ public class AuthService implements IAuthService {
                             .roles(roles)
                             .build();
                 })
-                .orElseThrow(() -> new RefreshTokenException(requestRefreshToken, "Refresh token not found in database"));
+                .orElseThrow(
+                        () -> new RefreshTokenException(requestRefreshToken, "Refresh token not found in database"));
     }
 
     @Override
@@ -466,7 +475,7 @@ public class AuthService implements IAuthService {
             userRepository.findByUsername(logoutRequest.getUsername())
                     .ifPresent(refreshTokenService::deleteByUser);
         }
-        
+
         return MessageResponse.builder()
                 .message("Logout successful")
                 .success(true)
@@ -493,7 +502,7 @@ public class AuthService implements IAuthService {
                     .success(true)
                     .build();
         })
-        .orElse(MessageResponse.builder()
+                .orElse(MessageResponse.builder()
                         .message("Token not found")
                         .success(false)
                         .build());
@@ -531,7 +540,8 @@ public class AuthService implements IAuthService {
 
         String resetToken = otpService.verifyOtp(user, otpCode);
         if (resetToken != null) {
-            return MessageResponse.builder().message("OTP verified successfully").success(true).token(resetToken).build();
+            return MessageResponse.builder().message("OTP verified successfully").success(true).token(resetToken)
+                    .build();
         } else {
             return MessageResponse.builder().message("Invalid or expired OTP").success(false).build();
         }
@@ -551,7 +561,8 @@ public class AuthService implements IAuthService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Optionally, we could invalidate the resetToken here by deleting the OTP record or clearing the token.
+        // Optionally, we could invalidate the resetToken here by deleting the OTP
+        // record or clearing the token.
         // For simplicity, we just save the new password.
 
         return MessageResponse.builder().message("Password reset successfully").success(true).build();

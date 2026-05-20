@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface IEslTagRepository extends JpaRepository<EslTag, Long> {
     Optional<EslTag> findByMacAddress(String macAddress);
-    Optional<EslTag> findByProductId(Long productId);
+    Optional<EslTag> findByBookId(Long bookId);
     Optional<EslTag> findByLocation(String location);
 }

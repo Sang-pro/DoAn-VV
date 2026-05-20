@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- THAY THẾ CHUỖI "YOUR_APP_ID" DƯỚI ĐÂY BẰNG APP ID TRÊN FACEBOOK DEVELOPER -->
+    <string name="facebook_app_id">1931861244028710</string>
+    
+    <!-- THAY THẾ CHUỖI "YOUR_CLIENT_TOKEN" DƯỚI ĐÂY BẰNG CLIENT TOKEN TRÊN FACEBOOK DEVELOPER -->
+    <string name="facebook_client_token">504ea5e1f1710303eb81457ba7f49055</string>
+</resources>

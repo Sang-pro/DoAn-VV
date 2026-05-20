@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { getAllTags, createTag, updateTag, deleteTag } from '../api/esltag';
-import { getAllProducts } from '../api/product';
-import { EslTag, Product } from '../types';
+import { getAllBooks } from '../api/book';
+import { EslTag, Book } from '../types';
 
 const EslManagement: React.FC = () => {
     const [tags, setTags] = useState<EslTag[]>([]);
-    const [products, setProducts] = useState<Product[]>([]);
+    const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -17,9 +17,9 @@ const EslManagement: React.FC = () => {
 
     const fetchData = useCallback(async () => {
         setLoading(true);
-        const [tagsData, productsData] = await Promise.all([getAllTags(), getAllProducts()]);
+        const [tagsData, booksData] = await Promise.all([getAllTags(), getAllBooks()]);
         setTags(tagsData || []);
-        setProducts(productsData || []);
+        setBooks(booksData || []);
         setLoading(false);
     }, []);
 
@@ -37,7 +37,7 @@ const EslManagement: React.FC = () => {
     const handleEdit = (tag: EslTag) => {
         setSelectedTag(tag);
         setFormData(tag);
-        setSelectedProductId(tag.product?.id || '');
+        setSelectedProductId(tag.book?.id || '');
         setIsFormOpen(true);
     };
 
@@ -52,9 +52,9 @@ const EslManagement: React.FC = () => {
         e.preventDefault();
         const payload = { ...formData };
         if (selectedProductId) {
-            payload.product = { id: Number(selectedProductId) } as Product;
+            payload.book = { id: Number(selectedProductId) } as Book;
         } else {
-            payload.product = undefined;
+            payload.book = undefined;
         }
 
         if (selectedTag && selectedTag.id) {
@@ -82,7 +82,7 @@ const EslManagement: React.FC = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Battery</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Online</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Linked Product</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Linked Book</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
@@ -95,7 +95,7 @@ const EslManagement: React.FC = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         {t.isOnline ? <span className="text-green-500">Online</span> : <span className="text-gray-500">Offline</span>}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{t.product?.name || <span className="text-gray-400">Unassigned</span>}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{t.book?.title || <span className="text-gray-400">Unassigned</span>}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <button onClick={() => handleEdit(t)} className="text-indigo-600 hover:text-indigo-900 mr-2">Edit</button>
                                         <button onClick={() => t.id && handleDelete(t.id)} className="text-red-600 hover:text-red-900">Delete</button>
@@ -131,10 +131,10 @@ const EslManagement: React.FC = () => {
                                 </label>
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm font-medium">Link Product</label>
+                                <label className="block text-sm font-medium">Link Book</label>
                                 <select className="w-full border p-1" value={selectedProductId} onChange={e => setSelectedProductId(e.target.value ? Number(e.target.value) : '')}>
-                                    <option value="">-- No Product --</option>
-                                    {products.map(p => <option key={p.id} value={p.id}>{p.name} (SKU: {p.sku})</option>)}
+                                    <option value="">-- No Book --</option>
+                                    {books.map(b => <option key={b.id} value={b.id}>{b.title} (ISBN: {b.isbn})</option>)}
                                 </select>
                             </div>
                             <div className="flex justify-end gap-2">

@@ -21,8 +21,8 @@ public class RfidTag {
     private String epc;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
 
     @Column(name = "current_location")
     private String currentLocation;

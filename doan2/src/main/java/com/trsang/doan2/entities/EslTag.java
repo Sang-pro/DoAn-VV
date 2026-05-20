@@ -32,9 +32,9 @@ public class EslTag {
     private String status;
 
     @OneToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    @JoinColumn(name = "book_id", referencedColumnName = "id")
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties("eslTag")
-    private Product product;
+    private Book book;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Column(name = "last_seen")

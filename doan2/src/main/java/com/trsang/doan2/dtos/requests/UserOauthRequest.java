@@ -14,12 +14,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserOauthRequest {
-    @NotBlank(message = "clientId is required")
     private String clientId;
 
     @NotBlank(message = "token is required")
     private String token;
 
-    @NotNull(message = "provider is required")
     private AuthProvider provider;
 }
