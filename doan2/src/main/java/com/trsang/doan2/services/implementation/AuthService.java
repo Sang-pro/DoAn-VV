@@ -99,7 +99,7 @@ public class AuthService implements IAuthService {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerProvider = authenticationManagerProvider;
         this.googleTokenVerifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                .setAudience(List.of("533216430410-3f8da959gfvfjd3hhsvboot644gb1smg.apps.googleusercontent.com"))
+                .setAudience(List.of("123123"))
                 .build();
         this.webClient = webClientBuilder.baseUrl("https://graph.facebook.com").build();
         this.facebookClientId = facebookClientId;

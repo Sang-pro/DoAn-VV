@@ -51,7 +51,7 @@ class AuthProvider with ChangeNotifier {
     if (!_googleSignInInitialized) {
       await GoogleSignIn.instance.initialize(
         // Web Client ID (Không dùng Android Client ID ở đây)
-        serverClientId: "533216430410-3f8da959gfvfjd3hhsvboot644gb1smg.apps.googleusercontent.com",
+        serverClientId: "123123",
       );
       _googleSignInInitialized = true;
     }
