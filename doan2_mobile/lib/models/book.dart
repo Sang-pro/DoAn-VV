@@ -48,6 +48,7 @@ class EslTag {
   final String? location;
   final int batteryLevel;
   final bool isOnline;
+  final Book? book;
 
   EslTag({
     this.id,
@@ -55,6 +56,7 @@ class EslTag {
     this.location,
     required this.batteryLevel,
     required this.isOnline,
+    this.book,
   });
 
   factory EslTag.fromJson(Map<String, dynamic> json) {
@@ -64,6 +66,33 @@ class EslTag {
       location: json['location'],
       batteryLevel: json['batteryLevel'] ?? 100,
       isOnline: json['isOnline'] ?? false,
+      book: json['book'] != null ? Book.fromJson(json['book']) : null,
+    );
+  }
+}
+
+class RfidTag {
+  final int? id;
+  final String epc;
+  final String? currentLocation;
+  final String? lastScannedAt;
+  final Book? book;
+
+  RfidTag({
+    this.id,
+    required this.epc,
+    this.currentLocation,
+    this.lastScannedAt,
+    this.book,
+  });
+
+  factory RfidTag.fromJson(Map<String, dynamic> json) {
+    return RfidTag(
+      id: json['id'],
+      epc: json['epc'] ?? '',
+      currentLocation: json['currentLocation'],
+      lastScannedAt: json['lastScannedAt'],
+      book: json['book'] != null ? Book.fromJson(json['book']) : null,
     );
   }
 }

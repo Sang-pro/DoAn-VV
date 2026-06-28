@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../providers/auth_provider.dart';
 import 'scanner_screen.dart';
 import 'book_detail_screen.dart';
+import 'shelf_map_screen.dart';
 
 class BookCatalogScreen extends StatefulWidget {
   const BookCatalogScreen({super.key});
@@ -101,12 +102,24 @@ class _BookCatalogScreenState extends State<BookCatalogScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          'V-Smart Library',
+          'Hệ thống quản lý thư viện',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.indigo[600],
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.map_outlined),
+            tooltip: 'Bản đồ kệ sách',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ShelfMapScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       floatingActionButton: isLibrarian
           ? FloatingActionButton.extended(

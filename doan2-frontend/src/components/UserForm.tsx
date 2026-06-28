@@ -69,7 +69,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel }) => {
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         >
                             <option value="ROLE_USER">USER</option>
-                            <option value="ROLE_CASHIER">CASHIER</option>
+                            <option value="ROLE_LIBRARIAN">LIBRARIAN</option>
+                            {/* <option value="ROLE_CASHIER">CASHIER</option> */}
                             <option value="ROLE_ADMIN">ADMIN</option>
                         </select>
                         <p className="text-gray-500 text-xs italic mt-1">Giữ phím Ctrl (hoặc Cmd) để chọn nhiều quyền.</p>

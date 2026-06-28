@@ -3,7 +3,7 @@ package com.trsang.doan2.controllers;
 import com.trsang.doan2.entities.Book;
 import com.trsang.doan2.repositories.IBookRepository;
 import com.trsang.doan2.repositories.IEslTagRepository;
-import com.trsang.doan2.services.interfaces.EslMqttGateway;
+import com.trsang.doan2.services.interfaces.MqttGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class BookController {
 
     private final IBookRepository bookRepository;
     private final IEslTagRepository eslTagRepository;
-    private final EslMqttGateway eslMqttGateway;
+    private final MqttGateway mqttGateway;
     private final ObjectMapper objectMapper;
 
     @GetMapping
@@ -74,7 +74,7 @@ public class BookController {
                     String payload = objectMapper.writeValueAsString(payloadMap);
                     
                     log.info("Publishing update to ESL Tag {}: {}", tag.getMacAddress(), payload);
-                    eslMqttGateway.sendToMqtt("esl/update/" + tag.getMacAddress(), payload);
+                    mqttGateway.sendToMqtt("esl/update/" + tag.getMacAddress(), payload);
                 } catch (Exception e) {
                     log.error("Error creating MQTT payload for ESL Tag {}", tag.getMacAddress(), e);
                 }

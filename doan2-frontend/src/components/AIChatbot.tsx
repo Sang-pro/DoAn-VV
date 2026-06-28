@@ -14,14 +14,28 @@ interface Message {
 const AIChatbot: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Xin chào! Tôi là trợ lý AI của dự án. Tôi có thể giúp gì cho bạn?',
-      sender: 'bot',
-      timestamp: new Date()
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem('ai_chat_history');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp)
+        }));
+      } catch (e) {
+        console.error('Failed to parse saved chat history:', e);
+      }
     }
-  ]);
+    return [
+      {
+        id: '1',
+        text: 'Xin chào! Tôi là trợ lý AI của dự án. Tôi có thể giúp gì cho bạn?',
+        sender: 'bot',
+        timestamp: new Date()
+      }
+    ];
+  });
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -29,6 +43,11 @@ const AIChatbot: React.FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('ai_chat_history', JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => {
     scrollToBottom();

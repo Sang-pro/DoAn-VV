@@ -17,7 +17,9 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  History,
+  Barcode
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -30,7 +32,13 @@ export const MainLayout: React.FC = () => {
 
   const hasRole = (roles: string[]) => {
     if (!user?.roles) return false;
-    return user.roles.some(r => roles.includes(r));
+    return user.roles.some(r => {
+      const normUserRole = r.toUpperCase().replace(/^ROLE_/, '');
+      return roles.some(allowedRole => {
+        const normAllowed = allowedRole.toUpperCase().replace(/^ROLE_/, '');
+        return normUserRole === normAllowed;
+      });
+    });
   };
 
   const allNavItems = [
@@ -42,7 +50,9 @@ export const MainLayout: React.FC = () => {
     { path: '/mqtt', label: 'Quản lý MQTT', icon: Settings, roles: ['ROLE_ADMIN'] },
     { path: '/sensor-data', label: 'Dữ liệu Cảm biến', icon: Activity, roles: ['ROLE_ADMIN'] },
     { path: '/esl', label: 'Quản lý ESL', icon: Tag, roles: ['ROLE_ADMIN'] },
+    { path: '/rfid', label: 'Quản lý mã dán RFID', icon: Barcode, roles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN'] },
     { path: '/shelf-map', label: 'Bản đồ Kệ sách', icon: BookOpen, roles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN', 'ROLE_USER'] },
+    { path: '/borrow-history', label: 'Lịch sử mượn', icon: History, roles: ['ROLE_ADMIN', 'ROLE_LIBRARIAN', 'ROLE_USER'] },
   ];
 
   const navItems = allNavItems.filter(item => hasRole(item.roles));
@@ -77,9 +87,9 @@ export const MainLayout: React.FC = () => {
                 className="flex items-center gap-2 "
               >
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
-                  <Activity className="w-5 h-5 text-white" />
+                  <Library className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-xl text-gray-800 tracking-tight">V-Smart</span>
+                <span className="font-bold text-sm text-gray-800 tracking-tight leading-snug max-w-[150px]">Hệ thống quản lý thư viện</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -218,7 +228,7 @@ export const MainLayout: React.FC = () => {
               className="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-50 flex flex-col shadow-2xl md:hidden"
             >
               <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100">
-                <span className="font-bold text-xl text-indigo-600">V-Smart</span>
+                <span className="font-bold text-lg text-indigo-600">Hệ thống quản lý thư viện</span>
                 <button 
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-lg"

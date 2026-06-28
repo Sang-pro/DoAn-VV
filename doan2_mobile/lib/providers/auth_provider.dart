@@ -24,9 +24,10 @@ class AuthProvider with ChangeNotifier {
     final token = prefs.getString('token');
     final username = prefs.getString('username');
     final roles = prefs.getStringList('roles');
+    final userCode = prefs.getString('userCode');
 
     if (token != null && username != null && roles != null) {
-      _user = User(username: username, token: token, roles: roles);
+      _user = User(username: username, token: token, roles: roles, userCode: userCode);
     }
     _isLoading = false;
     notifyListeners();
@@ -51,7 +52,7 @@ class AuthProvider with ChangeNotifier {
     if (!_googleSignInInitialized) {
       await GoogleSignIn.instance.initialize(
         // Web Client ID (Không dùng Android Client ID ở đây)
-        serverClientId: "123123",
+        serverClientId: "533216430410-3f8da959gfvfjd3hhsvboot644gb1smg.apps.googleusercontent.com",
       );
       _googleSignInInitialized = true;
     }

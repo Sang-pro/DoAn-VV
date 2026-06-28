@@ -1,11 +1,6 @@
 package com.trsang.doan2.config;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -114,14 +109,14 @@ public class MqttConfig {
         // Use the first configured server URI (HiveMQ Cloud)
         String serverUri = mqttServerUris.split(",")[0];
         log.info("Configuring MQTT inbound adapter with broker: {}", serverUri);
-        log.info("Subscribing to topic: smarttrash/+/data and esl/#");
+        log.info("Subscribing to topics: smarttrash/+/data, esl/#, warehouse/rfid/scan, warehouse/rfid/gate");
         
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(
                         serverUri,
                         mqttClientId + "_in",
                         mqttClientFactory(),
-                        "smarttrash/+/data", "esl/#");
+                        "smarttrash/+/data", "esl/#", "warehouse/rfid/scan", "warehouse/rfid/gate");
 
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
@@ -131,32 +126,7 @@ public class MqttConfig {
         return adapter;
     }
 
-    @Bean
-    public MqttClient mqttClient(MqttPahoClientFactory factory) throws MqttException {
-        MqttClient client = new MqttClient(
-            mqttServerUris.split(",")[0], 
-            mqttClientId, 
-            null
-        );
-        client.setCallback(new MqttCallback() {
-            @Override
-            public void connectionLost(Throwable cause) {
-                log.warn("MQTT connection lost: {}", cause.getMessage());
-            }
 
-            @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                log.debug("Message arrived on topic {}: {}", topic, new String(message.getPayload()));
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {
-                log.debug("Message delivery completed");
-            }
-        });
-        
-        return client;
-    }
 
     @Bean
     @ServiceActivator(inputChannel = "mqttOutboundChannel")

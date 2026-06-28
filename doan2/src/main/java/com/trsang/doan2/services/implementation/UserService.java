@@ -184,6 +184,7 @@ public class UserService implements IUserService {
                 .displayName(user.getDisplayName())
                 .avatarUrl(user.getAvatarUrl())
                 .phoneNumber(user.getPhoneNumber())
+                .userCode(user.getUserCode())
                 .roles(user.getRoles().stream()
                         .map(Role::getName)
                         .toList())

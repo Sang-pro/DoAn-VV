@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/ollama/models/**").permitAll()
                         .requestMatchers("/api/ollama/chat/**").permitAll() // Make chat API public too for testing
+                        .requestMatchers("/ws-plain", "/ws-plain/**").permitAll() // Allow WebSocket handshake without token header
                         // Swagger UI and API docs endpoints
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api-docs/**").permitAll()
                         // Admin endpoints

@@ -16,7 +16,13 @@ const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ children, allow
   }
 
   // Check if user has any of the allowed roles
-  const hasPermission = user?.roles?.some(role => allowedRoles.includes(role));
+  const hasPermission = user?.roles?.some(role => {
+    const normUserRole = role.toUpperCase().replace(/^ROLE_/, '');
+    return allowedRoles.some(allowedRole => {
+      const normAllowed = allowedRole.toUpperCase().replace(/^ROLE_/, '');
+      return normUserRole === normAllowed;
+    });
+  });
 
   if (!hasPermission) {
     // Redirect to dashboard if the user doesn't have permission

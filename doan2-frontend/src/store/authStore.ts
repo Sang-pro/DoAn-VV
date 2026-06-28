@@ -36,6 +36,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       email: response.email || '',
       isActive: true,
       roles: response.roles || [],
+      userCode: response.userCode || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

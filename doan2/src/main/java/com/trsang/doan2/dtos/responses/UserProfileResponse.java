@@ -22,6 +22,7 @@ public class UserProfileResponse {
     private String displayName;
     private String avatarUrl;
     private String phoneNumber;
+    private String userCode;
     private List<String> roles;
     private Instant createdAt;
     private Instant updatedAt;

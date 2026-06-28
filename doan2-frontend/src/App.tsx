@@ -15,6 +15,8 @@ import EslManagement from './pages/EslManagement';
 import PickToLight from './pages/PickToLight';
 import ShelfMap from './pages/ShelfMap';
 import Librarian from './pages/Librarian';
+import BorrowHistory from './pages/BorrowHistory';
+import RfidManagement from './pages/RfidManagement';
 import AIChatbot from './components/AIChatbot';
 import MainLayout from './components/MainLayout';
 import './App.css';
@@ -66,6 +68,11 @@ function App() {
               <EslManagement />
             </RoleProtectedRoute>
           } />
+          <Route path="/rfid" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_LIBRARIAN']}>
+              <RfidManagement />
+            </RoleProtectedRoute>
+          } />
           <Route path="/shelf-map" element={
             <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_USER', 'ROLE_LIBRARIAN']}>
               <ShelfMap />
@@ -74,6 +81,11 @@ function App() {
           <Route path="/librarian" element={
             <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_LIBRARIAN']}>
               <Librarian />
+            </RoleProtectedRoute>
+          } />
+          <Route path="/borrow-history" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_USER', 'ROLE_LIBRARIAN']}>
+              <BorrowHistory />
             </RoleProtectedRoute>
           } />
         </Route>

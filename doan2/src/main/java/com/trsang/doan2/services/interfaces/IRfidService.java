@@ -6,4 +6,5 @@ import com.trsang.doan2.entities.RfidTag;
 public interface IRfidService {
     void processRfidScan(RfidScanRequest request);
     RfidTag registerRfidTag(String epc, Long bookId);
+    void processGateScan(String epc, String deviceId);
 }

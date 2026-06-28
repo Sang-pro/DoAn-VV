@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 
 class ChatMessage {
@@ -6,6 +8,16 @@ class ChatMessage {
   final bool isUser;
   
   ChatMessage({required this.text, required this.isUser});
+
+  Map<String, dynamic> toJson() => {
+    'text': text,
+    'isUser': isUser,
+  };
+
+  factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
+    text: json['text'] ?? '',
+    isUser: json['isUser'] ?? false,
+  );
 }
 
 class ChatScreen extends StatefulWidget {
@@ -20,11 +32,55 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   
-  final List<ChatMessage> _messages = [
-    ChatMessage(text: 'Xin chào! Tôi là AI thủ thư của V-Smart Library. Tôi có thể giúp gì cho bạn hôm nay?', isUser: false),
-  ];
-  
+  List<ChatMessage> _messages = [];
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChatHistory();
+  }
+
+  Future<void> _loadChatHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? historyJson = prefs.getString('ai_chat_history');
+    if (historyJson != null) {
+      try {
+        final List<dynamic> parsed = jsonDecode(historyJson);
+        setState(() {
+          _messages = parsed.map((m) => ChatMessage.fromJson(m)).toList();
+        });
+        _scrollToBottom();
+        return;
+      } catch (e) {
+        print('Error parsing chat history: $e');
+      }
+    }
+    
+    // Set default initial greeting if no history
+    setState(() {
+      _messages = [
+        ChatMessage(text: 'Xin chào! Tôi là AI thủ thư của Hệ thống quản lý thư viện. Tôi có thể giúp gì cho bạn hôm nay?', isUser: false),
+      ];
+    });
+  }
+
+  Future<void> _saveChatHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String historyJson = jsonEncode(_messages.map((m) => m.toJson()).toList());
+    await prefs.setString('ai_chat_history', historyJson);
+  }
+
+  Future<void> _clearChatHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('ai_chat_history');
+    setState(() {
+      _messages = [
+        ChatMessage(text: 'Đã xóa hội thoại. Tôi có thể giúp gì thêm cho bạn?', isUser: false),
+      ];
+    });
+    _scrollToBottom();
+  }
 
   void _handleSubmitted(String text) async {
     if (text.trim().isEmpty) return;
@@ -35,6 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _messages.add(ChatMessage(text: text, isUser: true));
       _isLoading = true;
     });
+    _saveChatHistory();
     
     _scrollToBottom();
 
@@ -59,11 +116,13 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.add(ChatMessage(text: cleanText, isUser: false));
         _isLoading = false;
       });
+      _saveChatHistory();
     } catch (e) {
       setState(() {
         _messages.add(ChatMessage(text: 'Xin lỗi, tôi đang gặp sự cố kết nối. Vui lòng thử lại sau!', isUser: false));
         _isLoading = false;
       });
+      _saveChatHistory();
     }
     
     _scrollToBottom();
@@ -96,6 +155,13 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: Colors.indigo[600],
         foregroundColor: Colors.white,
         elevation: 1,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_sweep, color: Colors.white),
+            onPressed: _clearChatHistory,
+            tooltip: 'Xóa lịch sử chat',
+          ),
+        ],
       ),
       body: Column(
         children: [

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 import 'esl_management_screen.dart';
+import 'rfid_management_screen.dart';
+import 'borrow_history_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -49,6 +52,13 @@ class ProfileScreen extends StatelessWidget {
                     user?.username ?? 'Chưa đăng nhập',
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
+                  if (user?.userCode != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Mã số: ${user!.userCode}',
+                      style: const TextStyle(fontSize: 16, color: Colors.white70, fontWeight: FontWeight.w500, letterSpacing: 1.1),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -75,11 +85,34 @@ class ProfileScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: Column(
                   children: [
+                    if (user?.userCode != null) ...[
+                      _buildInfoItem(
+                        icon: Icons.badge_outlined,
+                        title: 'Mã số người dùng (User Code)',
+                        value: user!.userCode!,
+                        onCopy: () {
+                          Clipboard.setData(ClipboardData(text: user.userCode!));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Đã sao chép mã số người dùng!'),
+                              backgroundColor: Colors.indigo,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                    ],
                     _buildMenuItem(
                       icon: Icons.history,
                       title: 'Lịch sử mượn sách',
                       onTap: () {
-                        // TODO: Implement navigation
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const BorrowHistoryScreen(initialTabIndex: 1),
+                          ),
+                        );
                       },
                     ),
                     const Divider(height: 1),
@@ -87,7 +120,12 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.bookmark_border,
                       title: 'Sách đang mượn',
                       onTap: () {
-                        // TODO: Implement navigation
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const BorrowHistoryScreen(initialTabIndex: 0),
+                          ),
+                        );
                       },
                     ),
                     const Divider(height: 1),
@@ -106,6 +144,18 @@ class ProfileScreen extends StatelessWidget {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const EslManagementScreen()),
+                          );
+                        },
+                      ),
+                    ],
+                    if (authProvider.hasRole('ROLE_ADMIN') || authProvider.hasRole('ROLE_LIBRARIAN')) ...[
+                      const Divider(height: 1),
+                      _buildMenuItem(
+                        icon: Icons.label_outline,
+                        title: 'Quản lý mã dán RFID',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const RfidManagementScreen()),
                           );
                         },
                       ),
@@ -161,6 +211,39 @@ class ProfileScreen extends StatelessWidget {
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String title,
+    required String value,
+    required VoidCallback onCopy,
+  }) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.indigo[50],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: Colors.indigo[600]),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13, color: Colors.grey)),
+      subtitle: Text(
+        value,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+          color: Colors.black87,
+          letterSpacing: 1.1,
+        ),
+      ),
+      trailing: IconButton(
+        icon: const Icon(Icons.copy, size: 20, color: Colors.indigo),
+        onPressed: onCopy,
+        tooltip: 'Sao chép',
+      ),
     );
   }
 

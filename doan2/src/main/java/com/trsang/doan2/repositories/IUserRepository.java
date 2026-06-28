@@ -15,8 +15,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface IUserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
+    Optional<User> findByUserCode(String userCode);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
+    boolean existsByUserCode(String userCode);
 
     Page<User> findByUsernameContainingOrEmailContainingOrFirstNameContainingOrLastNameContaining(String username, String email, String firstName, String lastName, Pageable pageable);
     Page<User> findByIsActive(boolean isActive, Pageable pageable);

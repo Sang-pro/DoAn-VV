@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'main_screen.dart';
 import 'forgot_password_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -116,9 +117,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'V-Smart Library',
+                      'Hệ thống quản lý thư viện',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 24,
                         fontWeight: FontWeight.w900,
                         color: Colors.indigo[900],
                         letterSpacing: -0.5,
@@ -263,6 +264,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Text('Facebook', style: TextStyle(fontWeight: FontWeight.bold)),
                                 ],
                               ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Chưa có tài khoản? ', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                            );
+                          },
+                          child: Text(
+                            'Đăng ký ngay',
+                            style: TextStyle(
+                              color: Colors.indigo[600],
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
                           ),
                         ),

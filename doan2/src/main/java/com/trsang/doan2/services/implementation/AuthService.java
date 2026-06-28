@@ -99,7 +99,7 @@ public class AuthService implements IAuthService {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerProvider = authenticationManagerProvider;
         this.googleTokenVerifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                .setAudience(List.of("123123"))
+                .setAudience(List.of("533216430410-3f8da959gfvfjd3hhsvboot644gb1smg.apps.googleusercontent.com"))
                 .build();
         this.webClient = webClientBuilder.baseUrl("https://graph.facebook.com").build();
         this.facebookClientId = facebookClientId;
@@ -155,6 +155,7 @@ public class AuthService implements IAuthService {
                     .id(userDetails.getId())
                     .username(userDetails.getUsername())
                     .email(userDetails.getEmail())
+                    .userCode(userDetails.getUserCode())
                     .roles(roles)
                     .build();
         } catch (Exception e) {
@@ -238,6 +239,7 @@ public class AuthService implements IAuthService {
                 .id(userDetails.getId())
                 .username(userDetails.getUsername())
                 .email(userDetails.getEmail())
+                .userCode(userDetails.getUserCode())
                 .roles(roles)
                 .build();
     }
@@ -424,6 +426,7 @@ public class AuthService implements IAuthService {
                             .id(userDetails.getId())
                             .username(userDetails.getUsername())
                             .email(userDetails.getEmail())
+                            .userCode(userDetails.getUserCode())
                             .roles(roles)
                             .build();
                 })

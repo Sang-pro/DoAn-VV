@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book.dart';
 import '../services/api_service.dart';
+import '../providers/auth_provider.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final Book book;
@@ -14,6 +16,92 @@ class BookDetailScreen extends StatefulWidget {
 class _BookDetailScreenState extends State<BookDetailScreen> {
   final ApiService _apiService = ApiService();
   bool _isLighting = false;
+  late int _availableCopies;
+  bool _isBorrowing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _availableCopies = widget.book.availableCopies;
+  }
+
+  void _borrowBook() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    
+    if (user == null || user.userCode == null || user.userCode!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không tìm thấy mã số độc giả của cậu. Vui lòng liên hệ thủ thư.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isBorrowing = true;
+    });
+
+    try {
+      await _apiService.borrowBook(widget.book.id!, user.userCode!);
+      
+      setState(() {
+        _availableCopies = _availableCopies - 1;
+      });
+
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 28),
+                SizedBox(width: 10),
+                Text('Thành Công', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Đăng ký mượn cuốn sách "${widget.book.title}" thành công!', style: const TextStyle(fontSize: 15)),
+                const SizedBox(height: 12),
+                Text('Hạn trả sách của cậu là 14 ngày kể từ hôm nay.', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                const SizedBox(height: 6),
+                const Text('Hệ thống đã tự động cập nhật số lượng trên nhãn ESL tại kệ.', style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.w500, fontSize: 13)),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Đồng ý', style: TextStyle(color: Colors.indigo[600], fontWeight: FontWeight.bold, fontSize: 15)),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi: ${e.toString().replaceAll('Exception: ', '')}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isBorrowing = false;
+        });
+      }
+    }
+  }
 
   void _triggerPickToLight() async {
     if (widget.book.id == null) return;
@@ -141,18 +229,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: widget.book.availableCopies > 0 ? Colors.green[50] : Colors.red[50],
+              color: _availableCopies > 0 ? Colors.green[50] : Colors.red[50],
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: widget.book.availableCopies > 0 ? Colors.green[200]! : Colors.red[200]!,
+                color: _availableCopies > 0 ? Colors.green[200]! : Colors.red[200]!,
               ),
             ),
             child: Text(
-              widget.book.availableCopies > 0 
-                  ? 'Còn ${widget.book.availableCopies} quyển trên kệ' 
+              _availableCopies > 0 
+                  ? 'Còn $_availableCopies quyển trên kệ' 
                   : 'Đã cho mượn hết',
               style: TextStyle(
-                color: widget.book.availableCopies > 0 ? Colors.green[700] : Colors.red[700],
+                color: _availableCopies > 0 ? Colors.green[700] : Colors.red[700],
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               ),
@@ -185,7 +273,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           _buildInfoRow('Năm xuất bản', widget.book.publishedYear?.toString() ?? 'Đang cập nhật'),
           _buildInfoRow('Mã ISBN', widget.book.isbn),
           _buildInfoRow('Số lượng tổng', '${widget.book.totalCopies} quyển'),
-          _buildInfoRow('Đang cho mượn', '${widget.book.totalCopies - widget.book.availableCopies} quyển'),
+          _buildInfoRow('Đang cho mượn', '${widget.book.totalCopies - _availableCopies} quyển'),
           
           const SizedBox(height: 32),
           
@@ -272,21 +360,26 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         child: SizedBox(
           height: 54,
           child: ElevatedButton(
-            onPressed: widget.book.availableCopies > 0 ? () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chức năng Đăng ký mượn đang phát triển!')),
-              );
-            } : null,
+            onPressed: (_availableCopies > 0 && !_isBorrowing) ? _borrowBook : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.indigo[600],
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               disabledBackgroundColor: Colors.grey[300],
             ),
-            child: const Text(
-              'ĐĂNG KÝ MƯỢN SÁCH',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1),
-            ),
+            child: _isBorrowing
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text(
+                    'ĐĂNG KÝ MƯỢN SÁCH',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  ),
           ),
         ),
       ),

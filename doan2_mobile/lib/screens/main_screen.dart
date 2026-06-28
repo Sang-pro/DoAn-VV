@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'book_catalog_screen.dart';
 import 'chat_screen.dart';
+import 'borrow_history_screen.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     const BookCatalogScreen(),
     const ChatScreen(),
+    const BorrowHistoryScreen(initialTabIndex: 0),
     const ProfileScreen(),
   ];
 
@@ -24,6 +26,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -42,9 +45,13 @@ class _MainScreenState extends State<MainScreen> {
             label: 'AI Chat',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'Lịch sử',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             label: 'Tài khoản',
-          ),
+          )
         ],
       ),
     );

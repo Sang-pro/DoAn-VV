@@ -32,16 +32,37 @@ public class MqttInboundToWebSocketBridge {
         Object payload = message.getPayload();
 
         if (topic != null) {
-            socketService.sendMessage(topic, payload);
+            String payloadStr = payload instanceof byte[] ? new String((byte[]) payload) : payload.toString();
             
-            // Handle RFID scan topic
+            Object wsPayload = payloadStr;
+            try {
+                // Try to parse the payload as JSON so that SocketService serializes it as a proper JSON object
+                wsPayload = objectMapper.readTree(payloadStr);
+            } catch (Exception e) {
+                // Fallback to raw string if it's not valid JSON
+            }
+            
+            socketService.sendMessage(topic, wsPayload);
+
+            // Handle RFID scan at entrance (inventory/location tracking)
             if ("warehouse/rfid/scan".equals(topic)) {
                 try {
-                    String payloadStr = payload instanceof byte[] ? new String((byte[]) payload) : payload.toString();
                     RfidScanRequest scanReq = objectMapper.readValue(payloadStr, RfidScanRequest.class);
                     rfidService.processRfidScan(scanReq);
                 } catch (Exception e) {
                     log.error("Failed to parse RFID scan request: ", e);
+                }
+            }
+
+            // Handle RFID scan at exit gate (security check)
+            if ("warehouse/rfid/gate".equals(topic)) {
+                try {
+                    var jsonNode = objectMapper.readTree(payloadStr);
+                    String epc = jsonNode.get("epc").asText();
+                    String deviceId = jsonNode.has("deviceId") ? jsonNode.get("deviceId").asText() : "UNKNOWN";
+                    rfidService.processGateScan(epc, deviceId);
+                } catch (Exception e) {
+                    log.error("Failed to parse gate scan request: ", e);
                 }
             }
         }

@@ -5,6 +5,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.integration.mqtt.support.MqttHeaders;
 
 @MessagingGateway(defaultRequestChannel = "mqttOutboundChannel")
-public interface EslMqttGateway {
+public interface MqttGateway {
     void sendToMqtt(@Header(MqttHeaders.TOPIC) String topic, String data);
 }

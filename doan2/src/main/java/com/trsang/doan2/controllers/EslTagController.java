@@ -3,7 +3,7 @@ package com.trsang.doan2.controllers;
 import com.trsang.doan2.entities.EslTag;
 import com.trsang.doan2.repositories.IEslTagRepository;
 import com.trsang.doan2.repositories.IBookRepository;
-import com.trsang.doan2.services.interfaces.EslMqttGateway;
+import com.trsang.doan2.services.interfaces.MqttGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +21,10 @@ public class EslTagController {
 
     private final IEslTagRepository eslTagRepository;
     private final IBookRepository bookRepository;
-    private final EslMqttGateway eslMqttGateway;
+    private final MqttGateway mqttGateway;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN', 'USER')")
     public List<EslTag> getAllTags() {
         return eslTagRepository.findAll();
     }
@@ -69,7 +69,7 @@ public class EslTagController {
     public ResponseEntity<String> pickToLight(@PathVariable Long bookId) {
         return eslTagRepository.findByBookId(bookId).map(tag -> {
             String payload = "{\"action\": \"blink\"}";
-            eslMqttGateway.sendToMqtt("esl/find/" + tag.getMacAddress(), payload);
+            mqttGateway.sendToMqtt("esl/find/" + tag.getMacAddress(), payload);
             log.info("Triggered Pick-to-light for ESL Tag {}", tag.getMacAddress());
             return ResponseEntity.ok("Pick-to-light activated for " + tag.getMacAddress());
         }).orElseGet(() -> ResponseEntity.status(404).body("No assigned ESL tag found for this book."));

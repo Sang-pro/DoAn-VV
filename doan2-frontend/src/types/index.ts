@@ -11,6 +11,7 @@ export interface JwtResponse {
   id?: string;
   email?: string;
   roles?: string[];
+  userCode?: string;
 }
 
 export interface User {
@@ -21,6 +22,7 @@ export interface User {
   lastName?: string;
   displayName?: string;
   phoneNumber?: string;
+  userCode?: string;
   isActive: boolean;
   lockedUntil?: string;
   roles: string[];
@@ -112,4 +114,22 @@ export interface EslTag {
   location?: string;
   status?: string;
   book?: Book;
+}
+
+export interface BorrowRecord {
+  id?: number;
+  book: Book;
+  user: User;
+  borrowDate: string;
+  dueDate: string;
+  returnDate?: string;
+  status: 'BORROWED' | 'RETURNED' | 'OVERDUE';
+}
+
+export interface RfidTag {
+  id?: number;
+  epc: string;
+  book?: Book;
+  currentLocation?: string;
+  lastScannedAt?: string;
 }

@@ -51,6 +51,9 @@ public class User {
     @Column(name = "phone_number", length = 15, unique = true)
     private String phoneNumber;
 
+    @Column(name = "user_code", unique = true, length = 20)
+    private String userCode;
+
     @Builder.Default
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
@@ -103,6 +106,9 @@ public class User {
         // active flag
         if (!isActive) {
             isActive = true;
+        }
+        if (userCode == null) {
+            userCode = "LIB" + (10000 + new java.util.Random().nextInt(90000));
         }
     }
 
