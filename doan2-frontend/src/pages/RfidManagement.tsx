@@ -537,41 +537,102 @@ const RfidManagement: React.FC = () => {
                                                 </span>
                                             </div>
                                         ) : (
-                                            Object.entries(inventory).map(([bookId, item]) => (
-                                                <div 
-                                                    key={bookId}
-                                                    className={`p-3 rounded-xl border border-slate-100 text-xs flex flex-col gap-1.5 shadow-sm relative overflow-hidden ${
-                                                        Number(bookId) === -1 ? 'bg-amber-50/20 border-amber-100' : 'bg-indigo-50/5 border-indigo-100/30'
-                                                    }`}
-                                                >
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="font-bold text-slate-800 line-clamp-1 max-w-[150px]">{item.title}</div>
-                                                        <span className="bg-indigo-100 text-indigo-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0">
-                                                            {item.count} bản
-                                                        </span>
+                                            Object.entries(inventory).map(([bookId, item]) => {
+                                                const bId = Number(bookId);
+                                                const isUnregistered = bId === -1;
+                                                
+                                                // Tìm sách trong cơ sở dữ liệu để lấy số lượng bản sao khả dụng (availableCopies)
+                                                const matchedBook = books.find(b => b.id === bId);
+                                                const dbCopies = matchedBook ? matchedBook.availableCopies : 0;
+                                                
+                                                // Lấy tất cả mã EPC đã đăng ký trong hệ thống cho đầu sách này
+                                                const bookTags = tags.filter(t => t.book?.id === bId);
+                                                const regEpcs = bookTags.map(t => t.epc);
+
+                                                return (
+                                                    <div 
+                                                        key={bookId}
+                                                        className={`p-3 rounded-xl border border-slate-100 text-xs flex flex-col gap-2 shadow-sm relative overflow-hidden ${
+                                                            isUnregistered ? 'bg-amber-50/20 border-amber-100' : 'bg-indigo-50/5 border-indigo-100/30'
+                                                        }`}
+                                                    >
+                                                        <div className="flex justify-between items-start">
+                                                            <div className="font-bold text-slate-800 line-clamp-2 pr-2">{item.title}</div>
+                                                            <span className="bg-indigo-100 text-indigo-800 text-[10px] font-extrabold px-2.5 py-1 rounded-full shrink-0">
+                                                                Đã đếm: {item.count} bản
+                                                            </span>
+                                                        </div>
+                                                        
+                                                        {!isUnregistered && (
+                                                            <div className="flex justify-between items-center bg-slate-100/50 p-2 rounded-lg text-[10px] text-slate-500 mt-1">
+                                                                <span className="truncate pr-1">Tác giả: <strong>{item.author}</strong></span>
+                                                                <span className="font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded shrink-0">
+                                                                    Kho DB: {dbCopies} bản
+                                                                </span>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Hiển thị cảnh báo lệch số lượng */}
+                                                        {!isUnregistered && item.count !== dbCopies && (
+                                                            <div className={`text-[10px] px-2 py-1 rounded-lg font-medium flex items-center gap-1 ${
+                                                                item.count < dbCopies 
+                                                                    ? 'bg-amber-50 text-amber-700 border border-amber-100' 
+                                                                    : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                                            }`}>
+                                                                <span>⚠️</span>
+                                                                <span>
+                                                                    {item.count < dbCopies 
+                                                                        ? `Thiếu ${dbCopies - item.count} bản so với hệ thống` 
+                                                                        : `Thừa ${item.count - dbCopies} bản so với hệ thống`}
+                                                                </span>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Danh sách chi tiết các mã EPC */}
+                                                        <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 mt-1">
+                                                            <div className="text-[9px] text-slate-400 uppercase font-semibold">Trạng thái mã EPC của đầu sách:</div>
+                                                            <div className="max-h-[90px] overflow-y-auto mt-1 space-y-1 custom-scrollbar">
+                                                                {isUnregistered ? (
+                                                                    // Thẻ chưa đăng ký
+                                                                    item.epcs.map((epcCode, eIdx) => (
+                                                                        <div key={eIdx} className="flex justify-between items-center text-[10px] bg-amber-50/50 p-1 rounded font-mono text-amber-800">
+                                                                            <span>• {epcCode}</span>
+                                                                            <span className="text-[8px] bg-amber-100 px-1 rounded font-sans font-bold">Chưa liên kết</span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    // Thẻ đã đăng ký (so sánh quét vs chưa quét)
+                                                                    regEpcs.map((epcCode, eIdx) => {
+                                                                        const isScanned = item.epcs.some(e => e.toLowerCase() === epcCode.toLowerCase());
+                                                                        return (
+                                                                            <div key={eIdx} className={`flex justify-between items-center text-[10px] p-1 rounded font-mono ${
+                                                                                isScanned 
+                                                                                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-100/50' 
+                                                                                    : 'bg-slate-100 text-slate-400 border border-slate-200/50 line-through decoration-slate-300'
+                                                                            }`}>
+                                                                                <span className="truncate pr-1">• {epcCode}</span>
+                                                                                <span className={`text-[8px] px-1 rounded font-sans font-bold uppercase shrink-0 ${
+                                                                                    isScanned ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
+                                                                                }`}>
+                                                                                    {isScanned ? 'Đã đếm' : 'Chưa quét'}
+                                                                                </span>
+                                                                            </div>
+                                                                        );
+                                                                    })
+                                                                )}
+                                                                
+                                                                {/* Mã lạ quét trúng nhưng không có trong danh sách đăng ký của sách */}
+                                                                {!isUnregistered && item.epcs.filter(e => !regEpcs.some(re => re.toLowerCase() === e.toLowerCase())).map((epcCode, eIdx) => (
+                                                                    <div key={eIdx} className="flex justify-between items-center text-[10px] bg-red-50 text-red-800 p-1 rounded font-mono border border-red-100/50">
+                                                                        <span className="truncate pr-1">• {epcCode}</span>
+                                                                        <span className="text-[8px] bg-red-100 text-red-800 px-1 rounded font-sans font-bold uppercase shrink-0">Lạ / Nhầm</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    {Number(bookId) !== -1 ? (
-                                                        <div className="text-[10px] text-slate-400 mt-0.5">
-                                                            Tác giả: {item.author} | ISBN: {item.isbn}
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-[10px] text-amber-700 font-medium mt-0.5">
-                                                            Mã chưa liên kết, không thể phân loại đầu sách
-                                                        </div>
-                                                    )}
-                                                    {/* Monospace list of scanned EPCs */}
-                                                    <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-100 mt-1">
-                                                        <div className="text-[9px] text-slate-400 uppercase font-semibold">Danh sách mã EPC ({item.epcs.length}):</div>
-                                                        <div className="max-h-[60px] overflow-y-auto mt-0.5 space-y-0.5 custom-scrollbar">
-                                                            {item.epcs.map((epcCode, eIdx) => (
-                                                                <div key={eIdx} className="font-mono text-[9px] text-slate-600 break-all select-all hover:bg-slate-100 px-1 rounded">
-                                                                    • {epcCode}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))
+                                                );
+                                            })
                                         )}
                                     </div>
                                 </div>

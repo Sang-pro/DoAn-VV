@@ -31,7 +31,7 @@ public class WebClientConfig {
                 .evictInBackground(Duration.ofSeconds(120))
                 .build();
 
-        int timeoutSeconds = 120;
+        int timeoutSeconds = 300;
 
         HttpClient httpClient = HttpClient.create(provider)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeoutSeconds * 1000)
@@ -46,6 +46,7 @@ public class WebClientConfig {
 
         return WebClient.builder()
                 .baseUrl(ollamaConfig.getApiUrl())
+                .defaultHeader("ngrok-skip-browser-warning", "true") // Bỏ qua trang cảnh báo bảo mật của Ngrok
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .exchangeStrategies(exchangeStrategies)
                 .filter(logRequest())

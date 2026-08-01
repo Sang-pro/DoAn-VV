@@ -2,6 +2,7 @@ package com.trsang.doan2.controllers;
 
 import com.trsang.doan2.entities.Book;
 import com.trsang.doan2.entities.BorrowRecord;
+import com.trsang.doan2.dtos.requests.BorrowRequest;
 import com.trsang.doan2.entities.User;
 import com.trsang.doan2.exceptions.ResourceNotFoundException;
 import com.trsang.doan2.exceptions.ServiceException;
@@ -38,12 +39,6 @@ public class BorrowController {
     private final IEslTagRepository eslTagRepository;
     private final MqttGateway mqttGateway;
     private final ObjectMapper objectMapper;
-
-    @Data
-    public static class BorrowRequest {
-        private Long bookId;
-        private String userCode;
-    }
 
     @PostMapping("/borrow")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN', 'USER')")

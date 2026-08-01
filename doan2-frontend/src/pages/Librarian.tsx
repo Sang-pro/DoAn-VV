@@ -3,14 +3,19 @@ import { Search, Save, BookOpen, Tag, Hash, Barcode, CheckCircle, UserCheck, Rot
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAllBooks, updateBook } from '../api/book';
 import { borrowBook, returnBook, getAllRecords } from '../api/borrow';
-import { Book, BorrowRecord } from '../types';
+import { getAllRfidTags } from '../api/rfid';
+import { Book, BorrowRecord, RfidTag } from '../types';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 export const Librarian: React.FC = () => {
   const [isbnInput, setIsbnInput] = useState('');
   const [books, setBooks] = useState<Book[]>([]);
+  const [rfidTags, setRfidTags] = useState<RfidTag[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [scannedBook, setScannedBook] = useState<Book | null>(null);
+  
+  const { subscribe: wsSubscribe } = useWebSocket();
   
   // Tabs: 'borrow' | 'return' | 'edit'
   const [activeTab, setActiveTab] = useState<'borrow' | 'return' | 'edit'>('borrow');
@@ -65,7 +70,16 @@ export const Librarian: React.FC = () => {
         setLoading(false);
       }
     };
+    const fetchTags = async () => {
+      try {
+        const data = await getAllRfidTags();
+        setRfidTags(data || []);
+      } catch (err) {
+        console.error('Failed to fetch RFID tags:', err);
+      }
+    };
     fetchBooks();
+    fetchTags();
     fetchRecentRecords();
     
     if (inputRef.current) {
@@ -73,16 +87,24 @@ export const Librarian: React.FC = () => {
     }
   }, []);
 
-  const handleScan = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!isbnInput.trim()) return;
-
+  const lookupBook = (code: string) => {
     setSearchError('');
     setSaveSuccess(false);
     setBorrowError('');
     setBorrowSuccess('');
 
-    const found = books.find(b => b.isbn === isbnInput.trim() || b.isbn === isbnInput.trim().toUpperCase());
+    const query = code.trim().toUpperCase();
+
+    // 1. Tìm theo mã ISBN
+    let found = books.find(b => b.isbn === query || b.isbn === code.trim());
+
+    // 2. Nếu không tìm thấy, tìm theo mã RFID EPC
+    if (!found) {
+      const foundTag = rfidTags.find(t => t.epc.toUpperCase() === query || t.epc === code.trim());
+      if (foundTag && foundTag.book) {
+        found = books.find(b => b.id === foundTag.book?.id);
+      }
+    }
     
     if (found) {
       setScannedBook(found);
@@ -94,9 +116,35 @@ export const Librarian: React.FC = () => {
       setIsbnInput('');
     } else {
       setScannedBook(null);
-      setSearchError('Không tìm thấy sách với mã ISBN này!');
+      setSearchError('Không tìm thấy sách với mã ISBN hoặc thẻ RFID này!');
     }
   };
+
+  const handleScan = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!isbnInput.trim()) return;
+    lookupBook(isbnInput);
+  };
+
+  useEffect(() => {
+    const unsubscribe = wsSubscribe('warehouse/rfid/scan', (msg) => {
+      try {
+        const data = msg.message;
+        const scannedEpc = data.epc;
+        if (scannedEpc) {
+          console.log('Received RFID scan from WebSocket:', scannedEpc);
+          setIsbnInput(scannedEpc);
+          lookupBook(scannedEpc);
+        }
+      } catch (err) {
+        console.error('Error processing scanned RFID message:', err);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [wsSubscribe, books, rfidTags]);
 
   const handleSave = async () => {
     if (!scannedBook || !scannedBook.id) return;
@@ -245,7 +293,7 @@ export const Librarian: React.FC = () => {
               <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500">
                 <Barcode size={32} />
               </div>
-              <h2 className="text-lg font-semibold text-gray-700">Quét mã ISBN</h2>
+              <h2 className="text-lg font-semibold text-gray-700">Quét mã ISBN hoặc Thẻ RFID</h2>
             </div>
             
             <form onSubmit={handleScan} className="flex gap-2">
@@ -258,7 +306,7 @@ export const Librarian: React.FC = () => {
                   type="text"
                   value={isbnInput}
                   onChange={(e) => setIsbnInput(e.target.value)}
-                  placeholder="Ví dụ: ISBN-1001"
+                  placeholder="ISBN hoặc EPC (Thẻ RFID)"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm font-mono transition-all"
                   autoFocus
                 />
@@ -289,9 +337,9 @@ export const Librarian: React.FC = () => {
           <div className="bg-indigo-50 rounded-2xl p-6 text-sm text-indigo-800 border border-indigo-100">
             <h3 className="font-semibold mb-2 text-indigo-900">Hướng dẫn Nghiệp vụ</h3>
             <ul className="space-y-2 list-disc pl-4 text-indigo-700/80">
-              <li>Dùng máy quét mã vạch để quét mã ISBN cuốn sách.</li>
+              <li>Dùng máy quét để quét mã ISBN cuốn sách hoặc quét thẻ RFID gắn trên sách.</li>
               <li>Chọn tab <strong>Cho Mượn</strong> hoặc <strong>Nhận Trả</strong>.</li>
-              <li>Nhập <strong>Mã người dùng (User Code)</strong> của bạn đọc để lưu giao dịch.</li>
+              <li>Nhập hoặc quét <strong>Mã số người dùng (User Code)</strong> của bạn đọc.</li>
               <li>Hệ thống tự động trừ/cộng kho và đồng bộ ngay lên Nhãn giá ESL tại quầy!</li>
             </ul>
           </div>

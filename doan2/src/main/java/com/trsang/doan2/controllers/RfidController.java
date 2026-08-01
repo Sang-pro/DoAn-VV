@@ -1,6 +1,7 @@
 package com.trsang.doan2.controllers;
 
 import com.trsang.doan2.entities.RfidTag;
+import com.trsang.doan2.dtos.requests.RfidRegisterRequest;
 import com.trsang.doan2.repositories.IRfidTagRepository;
 import com.trsang.doan2.services.interfaces.IRfidService;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +42,4 @@ public class RfidController {
         return ResponseEntity.ok().build();
     }
 
-    @lombok.Data
-    public static class RfidRegisterRequest {
-        private String epc;
-        private Long bookId;
-    }
 }

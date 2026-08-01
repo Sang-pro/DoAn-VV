@@ -77,13 +77,19 @@ public class RfidService implements IRfidService {
         // Tìm thẻ RFID trong database
         Optional<RfidTag> rfidTagOpt = rfidTagRepository.findByEpc(epc);
         if (rfidTagOpt.isEmpty()) {
-            log.warn("Gate: RFID tag EPC {} khong ton tai trong he thong. BAO DONG!", epc);
-            sendAlarm(epc, deviceId, true, "Thẻ không xác định");
+            log.info("Gate: RFID tag EPC {} khong ton tai trong he thong (Chua dang ky). Khong bao dong.", epc);
+            sendAlarm(epc, deviceId, false, "Thẻ chưa đăng ký");
             return;
         }
 
         RfidTag rfidTag = rfidTagOpt.get();
         Book book = rfidTag.getBook();
+
+        if (book == null) {
+            log.info("Gate: RFID tag EPC {} ton tai nhung chua duoc gan voi sach. Khong bao dong.", epc);
+            sendAlarm(epc, deviceId, false, "Thẻ chưa gắn sách");
+            return;
+        }
 
         // Kiểm tra sách có đang được mượn hợp lệ không (status = "BORROWED")
         Optional<BorrowRecord> activeBorrow = borrowRecordRepository
